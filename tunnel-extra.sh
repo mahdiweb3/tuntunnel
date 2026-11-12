@@ -32,6 +32,7 @@ import socket
 import subprocess
 import sys
 import tarfile
+import datetime
 import tempfile
 import time
 import urllib.request
@@ -60,7 +61,7 @@ BANNER = (
     f'{B_BRIGHT}    / / / / / / __ \\  / / / / / / __ \\/ __ \\/ _ \\/ / {C_RST}\n'
     f'{B_CYAN}   / / / /_/ / / / / / / / /_/ / / / / / / /  __/ /  {C_RST}\n'
     f'{B_ICE}  /_/  \\__,_/_/ /_/ /_/  \\__,_/_/ /_/_/ /_/\\___/_/   {C_RST}\n\n'
-    f'  {B_SOFT}Multi-Core Tunnel & Transport Benchmark Tool •{C_RST} {B_BRIGHT}v2.5{C_RST}'
+    f'  {B_SOFT}Multi-Core Tunnel & Transport Benchmark Tool •{C_RST} {B_BRIGHT}v2.6.0{C_RST}'
 )
 
 
@@ -1049,17 +1050,65 @@ def configure_tunnel_wizard():
             step = {3: 0, 1: 3 if state.get('side') == 'abroad' else 0, 4: 3 if state.get('mode') == 'join' else 2}.get(step, step - 1)
 
 
+def saved_networks():
+    records = []
+    for path in sorted((ROOT / 'networks').glob('*.json')):
+        data = json.loads(path.read_text())
+        if name_ok(data['name']) != path.stem or data['carrier'] not in ('gre', 'vxlan', 'ipip'):
+            raise ValueError(f'Invalid network record: {path.name}')
+        records.append(data)
+    return records
+
+
+def list_networks():
+    records = saved_networks()
+    print('\nNetworks Created by TunTunnel (this host)')
+    print(f'{"Name":<20} {"Type":<7} {"Interface":<16} {"Subnet":<19} Status')
+    for data in records:
+        status = run(['ip', 'link', 'show', 'dev', device(data)], check=False)
+        print(f'{data["name"]:<20} {data["carrier"].upper():<7} {device(data):<16} {data["subnet"]:<19} {"Present" if status.returncode == 0 else "Missing"}')
+    if not records:
+        print('No saved networks. Networks created before tracking was added are not included.')
+    return records
+
+
+def delete_network():
+    records = list_networks()
+    if not records:
+        return
+    name = choose('Delete Network', [(d['name'], f"{d['name']} ({device(d)})") for d in records])
+    data = next(d for d in records if d['name'] == name)
+    if any(d.get('carrier') != 'none' and device(d) == device(data) for d in all_tunnels()):
+        raise RuntimeError('Network is used by a configured tunnel. Remove that tunnel first.')
+    if prompt(f'Delete {name} on this host only? [y/N]', 'n').lower() not in ('y', 'yes'):
+        print('Deletion cancelled.')
+        return
+    root_required()
+    if run(['ip', 'link', 'show', 'dev', device(data)], check=False).returncode == 0:
+        run(['ip', 'link', 'del', 'dev', device(data)])
+    (ROOT / 'networks' / f'{name}.json').unlink()
+    print(f'Network {name} deleted on this host. Peer host is unchanged.')
+
+
 def create_network_wizard():
     state = {}
     step = 0
     while step >= 0:
         try:
             if step == 0:
-                state['carrier'] = choose('Create New Private Network (GRE / VXLAN / IPIP)', [
+                state['carrier'] = choose('Private Network Management', [
                     ('gre', 'GRE Point-to-Point Tunnel'),
                     ('vxlan', 'VXLAN Overlay Network'),
                     ('ipip', 'IPIP Point-to-Point Tunnel'),
+                    ('list', 'List Networks'),
+                    ('delete', 'Delete Network'),
                 ], default='1')
+                if state['carrier'] == 'list':
+                    list_networks()
+                    continue
+                if state['carrier'] == 'delete':
+                    delete_network()
+                    continue
                 step = 1
             elif step == 1:
                 state['side'] = choose('Current Server Location', [
@@ -1102,7 +1151,12 @@ def create_network_wizard():
                 ans = prompt('Apply network interface on this host now? [y/N]', 'n')
                 if ans.lower() in ('y', 'yes'):
                     root_required()
+                    record = ROOT / 'networks' / f"{data['name']}.json"
+                    if record.exists() or run(['ip', 'link', 'show', 'dev', device(data)], check=False).returncode == 0:
+                        raise RuntimeError('Network name or interface already exists. Choose another name.')
                     link_action(data, role, up=True)
+                    saved = {key: data[key] for key in ('name', 'carrier', 'iran_ip', 'abroad_ip', 'subnet', 'link_id', 'vxlan_port')}
+                    write(record, json.dumps(saved, indent=2))
                     print(f"Network {device(data)} is up with address {addresses(data)[0 if state['side']=='iran' else 1]}.")
                 return
         except Back:
@@ -1487,6 +1541,50 @@ def manage_tunnels_wizard():
         except Back:
             continue
 
+def uninstall():
+    root_required()
+    items = all_tunnels()
+    networks = saved_networks()
+    units = sorted({p for pattern in ('tunnel-extra-*.service', 'tunnel-extra-*.timer')
+                    for p in UNITS.glob(pattern)})
+    print('\nUninstall TunTunnel (this host only)')
+    print('Stops and removes TunTunnel services, tracked interfaces, configuration,')
+    print('private engines and installed commands. Other tools and peer hosts are unchanged.')
+    print('Untracked interfaces and shared binaries in /usr/local/bin are preserved.')
+    print(f'Configured tunnels: {len(items)}; tracked networks: {len(networks)}; units: {len(units)}')
+    if prompt('Type UNINSTALL to confirm', '').strip() != 'UNINSTALL':
+        print('Uninstall cancelled.')
+        return False
+    backup_dir = Path('/var/backups/tuntunnel')
+    backup_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    backup = backup_dir / ('tuntunnel-' + datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f') + '.tar.gz')
+    # Backup must succeed before stopping services or deleting anything.
+    with os.fdopen(os.open(backup, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'wb') as stream:
+        with tarfile.open(fileobj=stream, mode='w:gz') as archive:
+            for path in (ROOT, BIN.parent, SELF.parent, *units):
+                if path.exists():
+                    archive.add(path, arcname=str(path).lstrip('/'))
+    print(f'Backup saved: {backup}')
+    for unit in sorted(units, key=lambda p: (p.suffix != '.timer', p.name)):
+        run(['systemctl', 'disable', '--now', unit.name])
+    for data in items + networks:
+        if data.get('carrier') in ('gre', 'vxlan', 'ipip'):
+            interface = device(data)
+            if run(['ip', 'link', 'show', 'dev', interface], check=False).returncode == 0:
+                run(['ip', 'link', 'del', 'dev', interface])
+    for unit in units:
+        unit.unlink()
+    run(['systemctl', 'daemon-reload'])
+    for alias in (Path('/usr/local/bin/tuntunnel'), Path('/usr/local/bin/tunnel-extra')):
+        if alias.is_symlink() and alias.resolve().parent == SELF.parent.resolve():
+            alias.unlink()
+    for path in (ROOT, BIN.parent, SELF.parent):
+        if path.exists():
+            shutil.rmtree(path)
+    print(f'TunTunnel uninstalled. Backup retained: {backup}')
+    return True
+
+
 def wizard():
     while True:
         show_system_header()
@@ -1497,6 +1595,7 @@ def wizard():
                 ('config', 'Install / Configure Tunnel'),
                 ('network', f'Create Private Network  {B_SOFT}(GRE / VXLAN / IPIP){C_RST}'),
                 ('manage', f'Tunnel Management  {B_SOFT}({t_cnt} configured){C_RST}'),
+                ('uninstall', 'Uninstall'),
             ], allow_back=True, exit_label='Exit', allow_link=True)
         except Back:
             print(f'  {B_BRIGHT}Exiting TunTunnel.{C_RST}')
@@ -1511,6 +1610,9 @@ def wizard():
             create_network_wizard()
         elif choice == 'manage':
             manage_tunnels_wizard()
+        elif choice == 'uninstall':
+            if uninstall():
+                return
 
 
 def manage(action, name=None):
@@ -1562,6 +1664,7 @@ def manage(action, name=None):
 def parser():
     ap = argparse.ArgumentParser(prog='tuntunnel', description='Unified Multi-Engine Tunnel & Overlay Network Manager')
     sub = ap.add_subparsers(dest='command')
+    sub.add_parser('uninstall', help='Back up and uninstall TunTunnel on this host')
     c = sub.add_parser('create', help='Create tunnel pair and connection code')
     c.add_argument('--name', default='main')
     c.add_argument('--profile', required=True, choices=list(PROFILES))
@@ -1644,6 +1747,8 @@ def main():
         role = args.role or data.get('role', 'server')
         if data['carrier'] != 'none':
             link_action(data, role, args.command == 'link-up')
+    elif args.command == 'uninstall':
+        uninstall()
     elif args.command:
         manage(args.command, getattr(args, 'name', None))
     else:

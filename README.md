@@ -23,10 +23,53 @@ A Linux terminal tool for configuring tunnels, private network carriers, and com
 | --- | --- |
 | Find Best Tunnel Method | Compare available tunnel transports between two servers. |
 | Install / Configure Tunnel | Create a tunnel or join using a setup link. |
-| Create Private Network | Configure GRE, VXLAN, or IPIP carrier networks. |
+| Create Private Network | Create GRE, VXLAN, or IPIP networks; list and delete networks tracked by this script. |
 | Tunnel Management | View and manage configured tunnels. |
+| Uninstall | Confirm removal of TunTunnel from this host after a verified local backup. |
+
+### Private network management (option 3)
+
+- Options 1–3 create GRE, VXLAN, or IPIP networks.
+- **List Networks** shows saved names, types, interfaces, subnets, and whether each interface is present on this host.
+- **Delete Network** asks for confirmation and removes only the selected local network. The peer host is unchanged. Networks used by configured tunnels cannot be deleted here.
+- Applied networks are tracked under `/etc/tunnel-extra/networks/`. Networks created before tracking was added are not included; unrelated interfaces are never imported automatically.
 
 ## Requirements
+
+### Uninstall (main menu option 5)
+
+Type `UNINSTALL` when prompted. This stops TunTunnel services, removes tracked local interfaces, and removes its configuration, private engine directory, launcher and command aliases. The peer host and shared engines in `/usr/local/bin` are unchanged. A private archive is verified first under `/var/backups/tuntunnel/`; it contains credentials, so keep it secure. If backup or service shutdown fails, file removal is aborted. Interfaces created before network tracking was introduced cannot be identified automatically.
+
+### Native Linux release
+
+Download `tuntunnel-linux-amd64` and `SHA256SUMS` from [Releases](https://github.com/mahdiweb3/tuntunnel/releases/latest). This is a native x86-64 Linux ELF launcher embedding the same manager. It requires **Python 3**, glibc 2.34 or newer, and the normal system tools listed below; it is not a bundled Python runtime. The embedded code runs from memory, not `/tmp`.
+
+```bash
+sha256sum --ignore-missing -c SHA256SUMS
+chmod 755 tuntunnel-linux-amd64
+./tuntunnel-linux-amd64
+```
+
+To install this binary permanently, as root:
+
+```bash
+install -d -m 755 /usr/local/lib/tunnel-extra /usr/local/bin
+install -m 755 tuntunnel-linux-amd64 /usr/local/lib/tunnel-extra/tunnel-extra.sh
+ln -sfn /usr/local/lib/tunnel-extra/tunnel-extra.sh /usr/local/bin/tuntunnel
+tuntunnel
+```
+
+The `.sh` filename is retained for compatibility with existing service paths; its contents may be either the Bash script or the ELF binary. Choose one installation method. Running the source installer later replaces the binary with the script.
+
+Build and run regression checks from source:
+
+```bash
+python3 build_binary.py
+python3 test_networks.py
+python3 test_uninstall.py
+```
+
+Building needs GCC on Linux x86-64. All deletion and interface tests use sandbox paths and mocked service calls; tests do not uninstall a live server.
 
 | Requirement | Details |
 | --- | --- |
