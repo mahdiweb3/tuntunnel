@@ -58,7 +58,7 @@ tuntunnel
 For a branch or source URL override:
 
 ```bash
-TUNTUNNEL_URL=https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/tunnel-extra.sh bash /tmp/tuntunnel-install.sh
+TUNTUNNEL_URL=https://raw.githubusercontent.com/mahdiweb3/tuntunnel/main/tunnel-extra.sh bash /tmp/tuntunnel-install.sh
 ```
 
 Review downloaded scripts before running them as root. Only use a repository and branch you trust.
