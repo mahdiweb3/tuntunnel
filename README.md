@@ -46,7 +46,7 @@ Engine availability depends on upstream releases and network access. GRE/IPIP an
 On **both** servers, run as root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/install.sh -o /tmp/tuntunnel-install.sh && bash /tmp/tuntunnel-install.sh
+curl -fsSL https://raw.githubusercontent.com/mahdiweb3/tuntunnel/main/install.sh -o /tmp/tuntunnel-install.sh && bash /tmp/tuntunnel-install.sh
 ```
 
 The installer downloads the script, checks Bash syntax, installs it to `/usr/local/lib/tunnel-extra/tunnel-extra.sh`, and creates `/usr/local/bin/tuntunnel`. It opens the menu if an interactive terminal is available. On later runs:
