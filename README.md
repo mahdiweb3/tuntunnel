@@ -41,24 +41,16 @@ Engine availability depends on upstream releases and network access. GRE/IPIP an
 
 ## Installation
 
-**Repository owner:** Upload the contents of the ZIP to your repository root. Replace `YOUR_USERNAME/YOUR_REPOSITORY` in the command below and the default URL in `install.sh` with your actual GitHub username and repository name. Change `main` if your branch has another name. The URL cannot work until the repository is published.
-
 On **both** servers, run as root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mahdiweb3/tuntunnel/main/install.sh
+mkdir -p /usr/local/lib/tunnel-extra /usr/local/bin && curl -fsSL https://raw.githubusercontent.com/mahdiweb3/tuntunnel/main/tunnel-extra.sh -o /usr/local/lib/tunnel-extra/tunnel-extra.sh.new && bash -n /usr/local/lib/tunnel-extra/tunnel-extra.sh.new && chmod 755 /usr/local/lib/tunnel-extra/tunnel-extra.sh.new && mv -f /usr/local/lib/tunnel-extra/tunnel-extra.sh.new /usr/local/lib/tunnel-extra/tunnel-extra.sh && ln -sfn /usr/local/lib/tunnel-extra/tunnel-extra.sh /usr/local/bin/tuntunnel && /usr/local/bin/tuntunnel
 ```
 
-The installer downloads the script, checks Bash syntax, installs it to `/usr/local/lib/tunnel-extra/tunnel-extra.sh`, and creates `/usr/local/bin/tuntunnel`. It opens the menu if an interactive terminal is available. On later runs:
+The command downloads the script to its permanent location, checks Bash syntax, creates `/usr/local/bin/tuntunnel`, and opens the menu. On later runs:
 
 ```bash
 tuntunnel
-```
-
-For a branch or source URL override:
-
-```bash
-TUNTUNNEL_URL=https://raw.githubusercontent.com/mahdiweb3/tuntunnel/main/tunnel-extra.sh
 ```
 
 Review downloaded scripts before running them as root. Only use a repository and branch you trust.
