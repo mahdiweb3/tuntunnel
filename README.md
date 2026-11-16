@@ -1,7 +1,5 @@
 # TunTunnel
 
-[English](README.md) | [فارسی](README.fa.md)
-
 A Linux terminal tool for configuring tunnels, private network carriers, and comparing transport methods across two servers. The interactive interface uses a blue terminal theme.
 
 ![TunTunnel main menu](docs/menu.png)
@@ -27,6 +25,7 @@ A Linux terminal tool for configuring tunnels, private network carriers, and com
 | Install / Configure Tunnel | Create a tunnel or join using a setup link. |
 | Create Private Network | Create GRE, VXLAN, or IPIP networks; list and delete networks tracked by this script. |
 | Tunnel Management | View and manage configured tunnels. |
+| Update TunTunnel | Install the latest GitHub release after SHA256 and syntax checks; keep settings and running tunnels unchanged. |
 | Uninstall | Confirm removal of TunTunnel from this host after a verified local backup. |
 
 ### Private network management (option 3)
@@ -38,7 +37,7 @@ A Linux terminal tool for configuring tunnels, private network carriers, and com
 
 ## Requirements
 
-### Uninstall (main menu option 5)
+### Uninstall (main menu option 6)
 
 Type `UNINSTALL` when prompted. This stops TunTunnel services, removes tracked local interfaces, and removes its configuration, private engine directory, launcher and command aliases. The peer host and shared engines in `/usr/local/bin` are unchanged. A private archive is verified first under `/var/backups/tuntunnel/`; it contains credentials, so keep it secure. If backup or service shutdown fails, file removal is aborted. Interfaces created before network tracking was introduced cannot be identified automatically.
 
@@ -69,6 +68,7 @@ Build and run regression checks from source:
 python3 build_binary.py
 python3 test_networks.py
 python3 test_uninstall.py
+python3 test_update.py
 ```
 
 Building needs GCC on Linux x86-64. All deletion and interface tests use sandbox paths and mocked service calls; tests do not uninstall a live server.
@@ -97,6 +97,16 @@ The command downloads the script to its permanent location, checks Bash syntax, 
 ```bash
 tuntunnel
 ```
+
+### Update an installed copy
+
+Choose **Update TunTunnel** (option 5) or run:
+
+```bash
+tuntunnel update
+```
+
+The updater checks the latest stable release on GitHub, downloads its ZIP and `SHA256SUMS`, validates Bash and embedded Python, backs up the installed launcher, and replaces it atomically. Configuration, engines, and running tunnel services are unchanged. It never downgrades a newer local build. A native installation becomes the equivalent source launcher and still requires Python 3. Reopen `tuntunnel` after updating. Older versions without this option need the installation command above once.
 
 Review downloaded scripts before running them as root. Only use a repository and branch you trust.
 

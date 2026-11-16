@@ -36,6 +36,7 @@ import datetime
 import tempfile
 import time
 import urllib.request
+import urllib.error
 import uuid
 import zipfile
 import zlib
@@ -55,13 +56,15 @@ C_RED = '\033[1;38;5;196m'
 C_DIM = '\033[2;37m'
 C_RST = '\033[0m'
 
+VERSION = '2.6.1'
+
 BANNER = (
     f'{B_DEEP}    ______            ______                      __{C_RST}\n'
     f'{B_MAIN}   /_  __/_  ______  /_  __/_  ______  ____  ___  / /{C_RST}\n'
     f'{B_BRIGHT}    / / / / / / __ \\  / / / / / / __ \\/ __ \\/ _ \\/ / {C_RST}\n'
     f'{B_CYAN}   / / / /_/ / / / / / / / /_/ / / / / / / /  __/ /  {C_RST}\n'
     f'{B_ICE}  /_/  \\__,_/_/ /_/ /_/  \\__,_/_/ /_/_/ /_/\\___/_/   {C_RST}\n\n'
-    f'  {B_SOFT}Multi-Core Tunnel & Transport Benchmark Tool •{C_RST} {B_BRIGHT}v2.6.0{C_RST}'
+    f'  {B_SOFT}Multi-Core Tunnel & Transport Benchmark Tool •{C_RST} {B_BRIGHT}v{VERSION}{C_RST}'
 )
 
 
@@ -1585,6 +1588,81 @@ def uninstall():
     return True
 
 
+def update():
+    root_required()
+    repo = 'https://api.github.com/repos/mahdiweb3/tuntunnel/releases/latest'
+    with urllib.request.urlopen(repo, timeout=30) as response:
+        tag = json.load(response)['tag_name']
+    if not re.fullmatch(r'v\d+\.\d+\.\d+', tag):
+        raise RuntimeError('Invalid release version.')
+    if tuple(map(int, tag[1:].split('.'))) <= tuple(map(int, VERSION.split('.'))):
+        print(f'TunTunnel v{VERSION} is already up to date (latest release: {tag}).')
+        return False
+    asset = f'tuntunnel-{tag}.zip'
+    base = f'https://github.com/mahdiweb3/tuntunnel/releases/download/{tag}'
+    with urllib.request.urlopen(f'{base}/SHA256SUMS', timeout=30) as response:
+        checksums = response.read(1024 * 1024).decode()
+    expected = next((line.split()[0].lower() for line in checksums.splitlines()
+                     if len(line.split()) == 2 and line.split()[1].lstrip('*') == asset), None)
+    if not expected or not re.fullmatch(r'[a-f0-9]{64}', expected):
+        raise RuntimeError('Release archive checksum is missing.')
+    with urllib.request.urlopen(f'{base}/{asset}', timeout=120) as response:
+        archive = response.read(16 * 1024 * 1024 + 1)
+    if len(archive) > 16 * 1024 * 1024 or hashlib.sha256(archive).hexdigest() != expected:
+        raise RuntimeError('Release archive checksum mismatch.')
+    with tempfile.TemporaryDirectory(prefix='tuntunnel-update-') as temp:
+        package = Path(temp) / asset
+        package.write_bytes(archive)
+        with zipfile.ZipFile(package) as bundle:
+            member = bundle.getinfo('tunnel-extra.sh')
+            if member.file_size > 2 * 1024 * 1024:
+                raise RuntimeError('Release script is too large.')
+            script = bundle.read(member).decode('utf-8')
+        marker = '__TUNNEL_' + 'EXTRA_PY__'
+        opener = "<<'" + marker + "'\n"
+        closer = '\n' + marker
+        if not script.startswith('#!/usr/bin/env bash\n') or opener not in script or closer not in script:
+            raise RuntimeError('Invalid release script.')
+        code = script.split(opener, 1)[1].rsplit(closer, 1)[0]
+        try:
+            compile(code, 'tunnel-extra.sh', 'exec')
+        except SyntaxError as exc:
+            raise RuntimeError('Invalid release Python code.') from exc
+        candidate = Path(temp) / 'tunnel-extra.sh'
+        candidate.write_text(script)
+        if run(['bash', '-n', candidate], check=False).returncode:
+            raise RuntimeError('Invalid release shell code.')
+        backup = ROOT / 'backups' / ('update-' + datetime.datetime.now().strftime('%Y%m%d-%H%M%S-') + uuid.uuid4().hex[:8])
+        backup.mkdir(parents=True, mode=0o700)
+        if SELF.exists():
+            shutil.copy2(SELF, backup / 'tunnel-extra.sh')
+        aliases = (Path('/usr/local/bin/tuntunnel'), Path('/usr/local/bin/tunnel-extra'))
+        for alias in aliases:
+            if alias.exists() and not alias.is_symlink():
+                shutil.copy2(alias, backup / alias.name)
+        SELF.parent.mkdir(parents=True, exist_ok=True)
+        # ponytail: stage beside destination so replacement stays atomic across filesystems.
+        with tempfile.NamedTemporaryFile(dir=SELF.parent, delete=False) as staged:
+            staged.write(script.encode())
+            stage = Path(staged.name)
+        try:
+            stage.chmod(0o755)
+            os.replace(stage, SELF)
+        finally:
+            stage.unlink(missing_ok=True)
+        for alias in aliases:
+            alias.parent.mkdir(parents=True, exist_ok=True)
+            pending = alias.with_name(alias.name + '.update-' + uuid.uuid4().hex[:8])
+            try:
+                pending.symlink_to(SELF)
+                os.replace(pending, alias)
+            finally:
+                pending.unlink(missing_ok=True)
+    print(f'Updated to {tag}. Backup: {backup}')
+    print('Configuration preserved; running tunnels were not restarted. Run tuntunnel again.')
+    return True
+
+
 def wizard():
     while True:
         show_system_header()
@@ -1595,6 +1673,7 @@ def wizard():
                 ('config', 'Install / Configure Tunnel'),
                 ('network', f'Create Private Network  {B_SOFT}(GRE / VXLAN / IPIP){C_RST}'),
                 ('manage', f'Tunnel Management  {B_SOFT}({t_cnt} configured){C_RST}'),
+                ('update', 'Update TunTunnel'),
                 ('uninstall', 'Uninstall'),
             ], allow_back=True, exit_label='Exit', allow_link=True)
         except Back:
@@ -1610,6 +1689,9 @@ def wizard():
             create_network_wizard()
         elif choice == 'manage':
             manage_tunnels_wizard()
+        elif choice == 'update':
+            if update():
+                return
         elif choice == 'uninstall':
             if uninstall():
                 return
@@ -1714,7 +1796,7 @@ def parser():
     ar = sub.add_parser('auto-refresh', help='Configure periodic restart timer')
     ar.add_argument('--hours', type=int)
     ar.add_argument('--off', action='store_true')
-    for name in ('list', 'restart-all'):
+    for name in ('list', 'restart-all', 'update'):
         sub.add_parser(name)
     for name in ('status', 'health', 'metrics'):
         p = sub.add_parser(name)
@@ -1749,6 +1831,8 @@ def main():
             link_action(data, role, args.command == 'link-up')
     elif args.command == 'uninstall':
         uninstall()
+    elif args.command == 'update':
+        update()
     elif args.command:
         manage(args.command, getattr(args, 'name', None))
     else:
