@@ -1,5 +1,7 @@
 # TunTunnel
 
+[English](README.md) | [فارسی](README.fa.md)
+
 A Linux terminal tool for configuring tunnels, private network carriers, and comparing transport methods across two servers. The interactive interface uses a blue terminal theme.
 
 ![TunTunnel main menu](docs/menu.png)
