@@ -56,7 +56,7 @@ C_RED = '\033[1;38;5;196m'
 C_DIM = '\033[2;37m'
 C_RST = '\033[0m'
 
-VERSION = '2.6.1'
+VERSION = '2.6.2'
 
 BANNER = (
     f'{B_DEEP}    ______            ______                      __{C_RST}\n'
@@ -1213,6 +1213,11 @@ def status_table(name=None):
         print('\n' + (p.stdout or p.stderr or '').strip())
 
 
+def transport_protocol(d):
+    p = PROFILES[d['profile']]
+    return 'udp' if p.get('udp') or p.get('transport') in ('hysteria2', 'quic', 'kcp') else 'tcp'
+
+
 def health_check(name=None, fix=False):
     items = [load(name)] if name else all_tunnels()
     if not items:
@@ -1247,13 +1252,16 @@ def health_check(name=None, fix=False):
                 if fix and os.geteuid() == 0:
                     link_action(d, role, up=True)
                     fixes.append(f'rebuilt carrier {dev}')
-        if role == 'server' and f":{d['port']} " not in ss_out and f":{d['port']}\n" not in ss_out:
+        protocol = transport_protocol(d)
+        listeners = [ln.split() for ln in ss_out.splitlines()]
+        listening = any(len(cols) > 4 and cols[0] == protocol and cols[4].endswith(f":{d['port']}") for cols in listeners)
+        if role == 'server' and not listening:
             issues.append(f"tunnel port {d['port']} not listening")
         iran, abroad = addresses(d)
         peer = abroad if side_for(d, role) == 'iran' else iran
         direction = d.get('direction', 'direct')
         dials_peer = (role == 'client')
-        if dials_peer and PROFILES[d['profile']]['engine'] != 'backpack':
+        if dials_peer and protocol == 'tcp' and PROFILES[d['profile']]['engine'] != 'backpack':
             try:
                 with socket.create_connection((peer, d['port']), timeout=2.5):
                     pass
@@ -1269,6 +1277,8 @@ def health_check(name=None, fix=False):
         print(f"\n[{status_str}] Tunnel: {tname} ({d['profile']}, {direction}, {role})")
         if not issues:
             print(f"  - Service {unit}: active | Peer: {peer}:{d['port']}")
+        if protocol == 'udp':
+            print('  - UDP: TCP probe skipped; end-to-end delivery not verified by this check.')
         for iss in issues:
             print(f"  - Problem: {iss}")
         for fx in fixes:
@@ -1285,6 +1295,9 @@ def link_test(name):
     for ln in (p.stdout or p.stderr or '').splitlines():
         if any(k in ln for k in ('packets transmitted', 'rtt ', 'round-trip', '100% packet loss')):
             print('  ICMP:', ln.strip())
+    if transport_protocol(d) == 'udp':
+        print(f"  UDP Port {d['port']}: not verified (requires protocol handshake or end-to-end traffic); TCP probe skipped.")
+        return
     t0 = time.monotonic()
     try:
         with socket.create_connection((peer, d['port']), timeout=3.0):
