@@ -56,7 +56,7 @@ C_RED = '\033[1;38;5;196m'
 C_DIM = '\033[2;37m'
 C_RST = '\033[0m'
 
-VERSION = '2.6.2'
+VERSION = '2.7.0'
 
 BANNER = (
     f'{B_DEEP}    ______            ______                      __{C_RST}\n'
@@ -77,6 +77,80 @@ SELF = Path('/usr/local/lib/tunnel-extra/tunnel-extra.sh')
 UNITS = Path('/etc/systemd/system')
 PROFILES = {
     'tcp-tls': dict(engine='sing-box'),
+
+    # --- GOST v3 ---
+    'gost-relay-tls': dict(engine='gost', transport='relay+tls'),
+    'gost-relay-ws': dict(engine='gost', transport='relay+ws'),
+    'gost-relay-wss': dict(engine='gost', transport='relay+wss'),
+    'gost-relay-kcp': dict(engine='gost', transport='relay+kcp', udp=True),
+    'gost-relay-quic': dict(engine='gost', transport='relay+quic', udp=True),
+    'gost-relay-grpc': dict(engine='gost', transport='relay+grpc'),
+    'gost-relay-h2': dict(engine='gost', transport='relay+h2'),
+
+    'gost-relay-pht': dict(engine='gost', transport='relay+pht'),
+    'gost-reverse-tls': dict(engine='gost', transport='relay+tls', direction='reverse'),
+    'gost-reverse-ws': dict(engine='gost', transport='relay+ws', direction='reverse'),
+    'gost-reverse-wss': dict(engine='gost', transport='relay+wss', direction='reverse'),
+    'gost-reverse-kcp': dict(engine='gost', transport='relay+kcp', udp=True, direction='reverse'),
+    'gost-reverse-quic': dict(engine='gost', transport='relay+quic', udp=True, direction='reverse'),
+    'gost-reverse-grpc': dict(engine='gost', transport='relay+grpc', direction='reverse'),
+    'gost-reverse-h2': dict(engine='gost', transport='relay+h2', direction='reverse'),
+
+    'gost-reverse-pht': dict(engine='gost', transport='relay+pht', direction='reverse'),
+
+    # --- Rathole ---
+    'rathole-tcp': dict(engine='rathole', transport='tcp', direction='reverse'),
+    'rathole-noise': dict(engine='rathole', transport='noise', direction='reverse'),
+    'rathole-tls': dict(engine='rathole', transport='tls', direction='reverse'),
+    'rathole-ws': dict(engine='rathole', transport='websocket', direction='reverse'),
+    'rathole-direct-tcp': dict(engine='rathole', transport='tcp', direction='direct'),
+    'rathole-direct-noise': dict(engine='rathole', transport='noise', direction='direct'),
+    'rathole-direct-tls': dict(engine='rathole', transport='tls', direction='direct'),
+    'rathole-direct-ws': dict(engine='rathole', transport='websocket', direction='direct'),
+
+    # --- Backhaul ---
+    'backhaul-tcp': dict(engine='backhaul', transport='tcp', direction='reverse'),
+    'backhaul-tcpmux': dict(engine='backhaul', transport='tcpmux', direction='reverse'),
+    'backhaul-ws': dict(engine='backhaul', transport='ws', direction='reverse'),
+    'backhaul-wsmux': dict(engine='backhaul', transport='wsmux', direction='reverse'),
+    'backhaul-wssmux': dict(engine='backhaul', transport='wssmux', direction='reverse'),
+    'backhaul-direct-tcp': dict(engine='backhaul', transport='tcp', direction='direct'),
+    'backhaul-direct-tcpmux': dict(engine='backhaul', transport='tcpmux', direction='direct'),
+    'backhaul-direct-ws': dict(engine='backhaul', transport='ws', direction='direct'),
+    'backhaul-direct-wsmux': dict(engine='backhaul', transport='wsmux', direction='direct'),
+    'backhaul-direct-wssmux': dict(engine='backhaul', transport='wssmux', direction='direct'),
+
+    # --- Kariz Native ---
+    'kariz-tcp': dict(engine='kariz', transport='tcp', direction='direct'),
+    'kariz-tcpmux': dict(engine='kariz', transport='tcpmux', direction='direct'),
+    'kariz-ws': dict(engine='kariz', transport='ws', direction='direct'),
+    'kariz-wss': dict(engine='kariz', transport='wss', direction='direct'),
+    'kariz-quic': dict(engine='kariz', transport='quic', udp=True, direction='direct'),
+    'kariz-kcp': dict(engine='kariz', transport='kcp', udp=True, direction='direct'),
+    'kariz-paqet': dict(engine='kariz', transport='paqet', raw=True, direction='direct'),
+    'kariz-reverse-tcp': dict(engine='kariz', transport='tcp', direction='reverse'),
+    'kariz-reverse-tcpmux': dict(engine='kariz', transport='tcpmux', direction='reverse'),
+    'kariz-reverse-ws': dict(engine='kariz', transport='ws', direction='reverse'),
+    'kariz-reverse-wss': dict(engine='kariz', transport='wss', direction='reverse'),
+    'kariz-reverse-quic': dict(engine='kariz', transport='quic', udp=True, direction='reverse'),
+    'kariz-reverse-kcp': dict(engine='kariz', transport='kcp', udp=True, direction='reverse'),
+    'kariz-reverse-paqet': dict(engine='kariz', transport='paqet', raw=True, direction='reverse'),
+
+    # --- Sing-box & Xray ---
+    'tuic-tls': dict(engine='sing-box', transport='tuic', udp=True),
+    'tuic-udp': dict(engine='sing-box', transport='tuic', udp=True),
+    'hysteria2-udp': dict(engine='sing-box', transport='hysteria2', udp=True),
+    'vless-reality': dict(engine='sing-box', transport='reality'),
+    'shadowtls-v3': dict(engine='sing-box', transport='shadowtls'),
+    'reality-grpc': dict(engine='xray', transport='reality-grpc'),
+    'reality-xhttp': dict(engine='xray', transport='reality-xhttp'),
+
+    # --- BackPack Direct ---
+    'bp-direct-tcp': dict(engine='backpack', transport='tcp', direction='direct'),
+    'bp-direct-faketcp': dict(engine='backpack', transport='pck', raw=True, direction='direct'),
+    'bp-direct-kcp': dict(engine='backpack', transport='kcp', udp=True, direction='direct'),
+    'bp-direct-ws': dict(engine='backpack', transport='ws', direction='direct'),
+
     'smux-tls': dict(engine='sing-box', mux='smux'),
     'yamux-tls': dict(engine='sing-box', mux='yamux'),
     'h2mux-tls': dict(engine='sing-box', mux='h2mux'),
@@ -92,15 +166,30 @@ PROFILES = {
     'mkcp-chacha': dict(engine='xray', transport='kcp', cipher='chacha20-poly1305'),
     'mkcp-aes': dict(engine='xray', transport='kcp', cipher='aes-128-gcm'),
     'tcp-stealth': dict(engine='backpack', transport='stealth', raw=True),
+    'bp-tcpmux': dict(engine='backpack', transport='tcpmux'),
+    'bp-wssmux': dict(engine='backpack', transport='wssmux'),
+    'bp-quic': dict(engine='backpack', transport='quic', udp=True),
+    'bp-ws': dict(engine='backpack', transport='ws'),
+    'bp-tcp': dict(engine='backpack', transport='tcp'),
+    'faketcp-pck': dict(engine='backpack', transport='pck', raw=True),
+    'kcp-aes': dict(engine='backpack', transport='kcp', udp=True),
     'icmp-aes': dict(engine='backpack', transport='xdi', raw=True),
+
     **{'dagger-' + n: dict(engine='dagger', transport=n)
        for n in ('tcp', 'ws', 'wss', 'http', 'xhttp', 'quantum', 'quantum+')},
 }
+GOST_DTLS_PIN = 'v3.2.6'  # gost 3.3.x DTLS dialer fails (pre-connected WriteTo); 3.2.6 verified
+# reverse-only engines: direct mode = engine dialled Iran->abroad + tuntunnel-core reverse bridge on top
+CORE_WRAPPED = ('backhaul', 'rathole', 'backpack')
 RELEASES = {
     'sing-box': ('SagerNet/sing-box', 'v1.14.4'),
     'xray': ('XTLS/Xray-core', 'v26.11.9'),
     'dagger': ('itsFLoKi/daggerConnect', 'v1.4'),
     'backpack': ('AminMGMT/BackPack', 'v1.8.5'),
+    'kariz': ('Erfan-XRay/Kariz', 'v2.8.1'),  # paqet needs >=2.8.0; 2.8.1 = version the matrix ran
+    'gost': ('go-gost/gost', 'v3.3.3'),
+    'rathole': ('rathole-org/rathole', 'v0.5.0'),
+    'backhaul': ('Musixal/Backhaul', 'v0.6.5'),
 }
 
 def run(argv, check=True, timeout=60):
@@ -167,7 +256,7 @@ def new_pair(name, profile, iran, abroad, tunnel_port, maps, carrier='none', sub
         raise ValueError('Unknown transport profile.')
     engine = PROFILES[profile]['engine']
     if direction is None:
-        direction = 'reverse' if engine in ('dagger', 'backpack') else 'direct'
+        direction = profile_direction(profile)
     if direction not in ('direct', 'reverse'):
         raise ValueError('Direction must be direct or reverse.')
     tp = port(tunnel_port, 'Tunnel port')
@@ -189,6 +278,10 @@ def new_pair(name, profile, iran, abroad, tunnel_port, maps, carrier='none', sub
 
 
 def validate(d):
+    if not isinstance(d, dict):
+        raise ValueError('Connection settings must be an object.')
+    if 'dtls' in str(d.get('profile', '')).lower():
+        raise ValueError('DTLS retired: choose another transport and create a new peer link.')
     if d.get('profile') not in PROFILES:
         raise ValueError('Unknown transport profile.')
     if d.get('direction', 'direct') not in ('direct', 'reverse'):
@@ -218,6 +311,27 @@ def validate(d):
             raise ValueError('Mapping protocol is invalid.')
     if len(str(d.get('secret', ''))) < 16:
         raise ValueError('Connection secret is invalid.')
+    if 'camouflage' in d:
+        d['camouflage'] = camouflage(d)
+    direction_for(d)
+    p = PROFILES[d['profile']]
+    if p.get('transport', 'tcp') == 'paqet':
+        iran, abroad = addresses(d)
+        if d['carrier'] != 'none' or ':' in iran or ':' in abroad:
+            raise ValueError('Paqet needs public IPv4 on both sides and no GRE/VXLAN/IPIP carrier (Kariz docs/paqet.md).')
+    if p['engine'] == 'dagger' and direction_for(d) == 'direct':
+        raise ValueError(f"{p['engine']} has no native direct forwarding in this setup; choose a native direct engine.")
+    if p['engine'] in CORE_WRAPPED and direction_for(d) == 'direct' and any(m['network'] != 'tcp' for m in d['maps']):
+        raise ValueError(f"{p['engine']} direct mode runs through tuntunnel-core and carries TCP mappings only.")
+    if p['engine'] == 'backhaul' and any(m['network'] != 'tcp' for m in d['maps']):
+        raise ValueError('Backhaul profiles support TCP mappings only.')
+    if p['engine'] == 'xray':
+        try:
+            uuid.UUID(d['secret'])
+        except (ValueError, TypeError, AttributeError) as exc:
+            raise ValueError('Xray secret must be a UUID.') from exc
+    if d.get('adapter_port') == d['port'] or any(m['entry'] == d['port'] for m in d['maps']):
+        raise ValueError('Tunnel, adapter and entry listeners must use distinct ports.')
 
 
 def encode_code(d):
@@ -243,8 +357,10 @@ def decode_code(code):
         data = json.loads(base64.urlsafe_b64decode(body.encode()).decode())
     except Exception as exc:
         raise ValueError('Connection code is corrupted or invalid.') from exc
+    if not isinstance(data, dict):
+        raise ValueError('Connection settings must be an object.')
     if 'direction' not in data:
-        data['direction'] = 'reverse' if PROFILES.get(data.get('profile'), {}).get('engine') in ('dagger', 'backpack') else 'direct'
+        data['direction'] = profile_direction(data.get('profile'))
     if 'adapter_port' not in data:
         tp = int(data.get('port', 30443))
         used = {tp} | {int(m['entry']) for m in data.get('maps', [])} | {int(m['target']) for m in data.get('maps', [])}
@@ -260,8 +376,22 @@ def addresses(d):
     return str(hosts[0]), str(hosts[1])
 
 
+def profile_direction(profile):
+    p = PROFILES.get(profile, {})
+    return p.get('direction', 'reverse' if p.get('engine') in ('dagger', 'backpack', 'backhaul', 'rathole') else 'direct')
+
+
+def direction_for(d):
+    direction = d.get('direction', profile_direction(d.get('profile')))
+    if direction not in ('direct', 'reverse'):
+        raise ValueError('Direction must be direct or reverse.')
+    return direction
+
+
 def side_for(d, role):
-    direction = d.get('direction', 'reverse' if PROFILES[d['profile']]['engine'] in ('dagger', 'backpack') else 'direct')
+    if role not in ('server', 'client'):
+        raise ValueError('Role must be server or client.')
+    direction = direction_for(d)
     if direction == 'reverse':
         return 'iran' if role == 'server' else 'abroad'
     return 'abroad' if role == 'server' else 'iran'
@@ -269,12 +399,66 @@ def side_for(d, role):
 
 def needs_adapter(d):
     engine = PROFILES[d['profile']]['engine']
-    direction = d.get('direction', 'reverse' if engine in ('dagger', 'backpack') else 'direct')
-    return (engine in ('sing-box', 'xray') and direction == 'reverse') or (engine in ('dagger', 'backpack') and direction == 'direct')
+    return engine in ('sing-box', 'xray') and direction_for(d) == 'reverse'
+
+
+def camouflage(d):
+    value = d.get('camouflage', 'www.microsoft.com:443')
+    if not isinstance(value, str) or not value or re.search(r'\s', value):
+        raise ValueError('Camouflage must be a hostname/IP and optional port.')
+    parsed = urllib.parse.urlsplit('//' + value)
+    try:
+        host, number = parsed.hostname, parsed.port
+    except ValueError as exc:
+        raise ValueError('Invalid camouflage port.') from exc
+    if not host or parsed.username is not None or parsed.password is not None or parsed.path or parsed.query or parsed.fragment:
+        raise ValueError('Invalid camouflage address.')
+    if ':' in host:
+        ipaddress.IPv6Address(host)
+    elif not all(re.fullmatch(r'[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?', label) for label in host.split('.')):
+        raise ValueError('Invalid camouflage hostname.')
+    if value.endswith(':'):
+        raise ValueError('Invalid camouflage port.')
+    return endpoint(host, port(number if number is not None else 443, 'Camouflage port'))
+
+
+def x25519_pub(priv):
+    # RFC 7748 ladder, stdlib only: REALITY needs the public key at config time on both sides
+    if len(priv) != 32:
+        raise ValueError('X25519 private key must contain 32 bytes.')
+    P, k = 2**255 - 19, bytearray(priv)
+    k[0] &= 248; k[31] = (k[31] & 127) | 64
+    k = int.from_bytes(k, 'little')
+    x1, x2, z2, x3, z3, swap = 9, 1, 0, 9, 1, 0
+    for t in range(254, -1, -1):
+        bit = (k >> t) & 1
+        if swap ^ bit:
+            x2, x3, z2, z3 = x3, x2, z3, z2
+        swap = bit
+        a, b, aa, bb = (x2 + z2) % P, (x2 - z2) % P, 0, 0
+        aa, bb = a * a % P, b * b % P
+        e, c, d_ = (aa - bb) % P, (x3 + z3) % P, (x3 - z3) % P
+        da, cb = d_ * a % P, c * b % P
+        x3, z3 = (da + cb) ** 2 % P, x1 * (da - cb) ** 2 % P
+        x2, z2 = aa * bb % P, e * (aa + 121665 * e) % P
+    if swap:
+        x2, z2 = x3, z3
+    return (x2 * pow(z2, P - 2, P) % P).to_bytes(32, 'little')
+
+
+def reality_keys(secret):
+    priv = hashlib.sha256(('reality:' + secret).encode()).digest()
+    b64 = lambda b: base64.urlsafe_b64encode(b).decode().rstrip('=')
+    return b64(priv), b64(x25519_pub(priv)), hashlib.sha256(('sid:' + secret).encode()).hexdigest()[:16]
 
 
 def endpoint(host, number):
     return f'[{host}]:{number}' if ':' in host else f'{host}:{number}'
+
+
+def cert_pin(path):
+    import hashlib, ssl
+    return hashlib.sha256(ssl.PEM_cert_to_DER_cert(Path(path).read_text())).hexdigest()
 
 
 def make_certificate(directory):
@@ -289,10 +473,11 @@ def make_certificate(directory):
 
 def make_config(d, role, directory):
     validate(d)
+    side_for(d, role)
     directory = Path(directory)
     p = PROFILES[d['profile']]
     iran, abroad = addresses(d)
-    direction = d.get('direction', 'reverse' if p['engine'] in ('dagger', 'backpack') else 'direct')
+    direction = direction_for(d)
     remote = iran if direction == 'reverse' else abroad
     listen = '::' if ':' in remote else '0.0.0.0'
     cert, key = str(directory / 'cert.pem'), str(directory / 'key.pem')
@@ -301,8 +486,8 @@ def make_config(d, role, directory):
         if not cert_p.exists():
             try:
                 write(cert_p, d['certificate'])
-            except OSError:
-                pass
+            except OSError as exc:
+                raise RuntimeError('Unable to write trusted peer certificate.') from exc
     if p['engine'] == 'sing-box':
         inbound = dict(type='trojan', tag='tunnel', listen=listen, listen_port=d['port'],
                        users=[dict(password=d['secret'])],
@@ -311,9 +496,23 @@ def make_config(d, role, directory):
                         password=d['secret'], tls=dict(enabled=True, min_version='1.3',
                         server_name=d['server_name'], certificate=d['certificate'].splitlines()))
         transport = p.get('transport')
-        if transport == 'hysteria2':
+        if transport == 'reality':
+            host, _, number = camouflage(d).rpartition(':')
+            host = host.strip('[]')
+            uid = str(uuid.uuid5(uuid.NAMESPACE_DNS, d['secret']))
+            priv, pub, sid = reality_keys(d['secret'])
+            inbound.update(type='vless', users=[dict(uuid=uid)], tls=dict(enabled=True, server_name=host,
+                reality=dict(enabled=True, handshake=dict(server=host, server_port=int(number)), private_key=priv, short_id=[sid])))
+            outbound.update(type='vless', uuid=uid, tls=dict(enabled=True, server_name=host,
+                utls=dict(enabled=True, fingerprint='chrome'), reality=dict(enabled=True, public_key=pub, short_id=sid)))
+            outbound.pop('password')
+        elif transport == 'hysteria2':
             inbound['type'] = outbound['type'] = transport
-        elif transport:
+        elif transport == 'tuic':
+            uid = str(uuid.uuid5(uuid.NAMESPACE_DNS, d['secret']))
+            inbound.update(type='tuic', users=[dict(uuid=uid, password=d['secret'])])
+            outbound.update(type='tuic', uuid=uid)
+        elif transport and transport != 'shadowtls':
             tr = dict(type=transport)
             if transport in ('ws', 'httpupgrade', 'http'):
                 tr['path'] = '/tunnel'
@@ -322,6 +521,29 @@ def make_config(d, role, directory):
             if transport == 'http':
                 tr['host'] = [d['server_name']]
             inbound['transport'] = outbound['transport'] = tr
+            if transport == 'httpupgrade':
+                # ponytail: keep HTTPUpgrade; VLESS handles fragmented request headers.
+                uid = str(uuid.uuid5(uuid.NAMESPACE_DNS, d['secret']))
+                inbound.update(type='vless', users=[dict(uuid=uid)])
+                outbound.update(type='vless', uuid=uid)
+                outbound.pop('password', None)
+                inbound['tls']['alpn'] = outbound['tls']['alpn'] = ['http/1.1']
+        inbounds, outbounds = [inbound], [outbound]
+        if transport == 'shadowtls':
+            host, _, port = camouflage(d).rpartition(':')
+            host = host.strip('[]')
+            key = base64.b64encode(hashlib.sha256(d['secret'].encode()).digest()[:16]).decode()
+            ss = dict(type='shadowsocks', tag='tunnel', method='2022-blake3-aes-128-gcm', password=key)
+            ss['multiplex'] = dict(enabled=True)
+            inbounds = [dict(type='shadowtls', tag='stls', listen=listen, listen_port=d['port'], version=3,
+                             users=[dict(name='tunnel', password=d['secret'])], handshake=dict(server=host, server_port=int(port)),
+                             strict_mode=True, detour='tunnel'), ss]
+            # ponytail: camouflage cert not verified; auth is the ShadowTLS v3 HMAC + inner AEAD key
+            outbounds = [dict(ss, server=None, detour='stls'),
+                         dict(type='shadowtls', tag='stls', server=remote, server_port=d['port'], version=3, password=d['secret'],
+                              tls=dict(enabled=True, server_name=host, insecure=True))]
+            outbounds[0].pop('server')
+            outbounds[0]['multiplex'] = dict(enabled=True, protocol='smux')
         if p.get('mux'):
             inbound['multiplex'] = dict(enabled=True)
             inbound['tcp_fast_open'] = True
@@ -329,18 +551,26 @@ def make_config(d, role, directory):
             outbound['multiplex'] = dict(enabled=True, protocol=p['mux'], max_connections=d['pool'],
                                          min_streams=4, max_streams=128, padding=False)
         if role == 'server':
-            return dict(log=dict(level='warn'), inbounds=[inbound], outbounds=[dict(type='direct', tag='backend')],
+            return dict(log=dict(level='warn'), inbounds=inbounds, outbounds=[dict(type='direct', tag='backend')],
                         route=dict(rules=[dict(inbound=['tunnel'], ip_cidr=[d['target'] + ('/128' if ':' in d['target'] else '/32')],
                         port=sorted(set(m['target'] for m in d['maps'])), action='route', outbound='backend'),
                         dict(inbound=['tunnel'], action='reject')], final='backend'))
         entries = [dict(type='direct', tag='entry' + str(m['entry']), listen=d['entry_bind'],
                         listen_port=m['entry'], override_address=d['target'], override_port=m['target'],
                         **({} if m['network'] == 'both' else dict(network=m['network']))) for m in d['maps']]
-        return dict(log=dict(level='warn'), inbounds=entries, outbounds=[outbound], route=dict(final='tunnel'))
+        return dict(log=dict(level='warn'), inbounds=entries, outbounds=outbounds, route=dict(final='tunnel'))
     if p['engine'] == 'xray':
         kcp = p['transport'] == 'kcp'
-        stream = dict(network=p['transport'], security='none' if kcp else 'tls')
-        if kcp:
+        real = p['transport'].startswith('reality-')
+        net = p['transport'].split('-', 1)[1] if real else p['transport']
+        stream = dict(network=net, security='reality' if real else 'none' if kcp else 'tls')
+        if real:
+            host = camouflage(d).rpartition(':')[0]
+            priv, pub, sid = reality_keys(d['secret'])
+            stream['realitySettings'] = (dict(show=False, dest=camouflage(d), serverNames=[host], privateKey=priv, shortIds=[sid])
+                                         if role == 'server' else dict(serverName=host, fingerprint='chrome', publicKey=pub, shortId=sid, spiderX='/'))
+            stream[net + 'Settings'] = dict(serviceName='tunnel') if net == 'grpc' else dict(path='/tunnel', mode='auto')
+        elif kcp:
             stream['kcpSettings'] = dict(mtu=1350, tti=20, uplinkCapacity=100, downlinkCapacity=100,
                                         congestion=True, readBufferSize=16, writeBufferSize=16,
                                         seed=d['secret'], header=dict(type='none'))
@@ -369,18 +599,32 @@ def make_config(d, role, directory):
                     port=d['port'], users=[user])]), streamSettings=stream)])
     if p['engine'] == 'backpack':
         transport = p['transport']
-        if role == 'server':
-            mappings = [f"{endpoint(d['entry_bind'], m['entry'])}={endpoint(d['target'], m['target'])}" for m in d['maps']]
-            has_udp = any(m['network'] in ('udp', 'both') for m in d['maps'])
-            cfg = dict(role='server', transport=transport, token=d['secret'], bind_addr=endpoint(listen, d['port']),
-                       ports=mappings, accept_udp=has_udp, skip_optz=True, log_level='warn', nodelay=True, keepalive=60,
-                       mux_con=8, mux_version=2, mux_framesize=32768, mux_recievebuffer=16777216, mux_streambuffer=1048576,
-                       channel_size=2048, heartbeat=20, web_port=0)
+        mappings = [f"{endpoint(d['entry_bind'], m['entry'])}={endpoint(d['target'], m['target'])}" for m in d['maps']]
+        has_udp = any(m['network'] in ('udp', 'both') for m in d['maps'])
+        direction = d.get('direction', 'reverse')
+        if direction == 'direct':
+            if role == 'client':
+                cfg = dict(role='client', transport=transport, token=d['secret'], remote_addr=endpoint(remote, d['port']),
+                           ports=mappings, accept_udp=has_udp,
+                           connection_pool=max(1, min(d['pool'], 32)), retry_interval=1, dial_timeout=5, skip_optz=True,
+                           log_level='warn', nodelay=True, keepalive=60, mux_con=8, mux_version=2, mux_framesize=32768,
+                           mux_recievebuffer=16777216, mux_streambuffer=1048576)
+            else:
+                cfg = dict(role='server', transport=transport, token=d['secret'], bind_addr=endpoint(listen, d['port']),
+                           skip_optz=True, log_level='warn', nodelay=True, keepalive=60,
+                           mux_con=8, mux_version=2, mux_framesize=32768, mux_recievebuffer=16777216, mux_streambuffer=1048576,
+                           channel_size=2048, heartbeat=20, web_port=0)
         else:
-            cfg = dict(role='client', transport=transport, token=d['secret'], remote_addr=endpoint(remote, d['port']),
-                       connection_pool=max(1, min(d['pool'], 32)), retry_interval=1, dial_timeout=5, skip_optz=True,
-                       log_level='warn', nodelay=True, keepalive=60, mux_con=8, mux_version=2, mux_framesize=32768,
-                       mux_recievebuffer=16777216, mux_streambuffer=1048576)
+            if role == 'server':
+                cfg = dict(role='server', transport=transport, token=d['secret'], bind_addr=endpoint(listen, d['port']),
+                           ports=mappings, accept_udp=has_udp, skip_optz=True, log_level='warn', nodelay=True, keepalive=60,
+                           mux_con=8, mux_version=2, mux_framesize=32768, mux_recievebuffer=16777216, mux_streambuffer=1048576,
+                           channel_size=2048, heartbeat=20, web_port=0)
+            else:
+                cfg = dict(role='client', transport=transport, token=d['secret'], remote_addr=endpoint(remote, d['port']),
+                           connection_pool=max(1, min(d['pool'], 32)), retry_interval=1, dial_timeout=5, skip_optz=True,
+                           log_level='warn', nodelay=True, keepalive=60, mux_con=8, mux_version=2, mux_framesize=32768,
+                           mux_recievebuffer=16777216, mux_streambuffer=1048576)
             if transport == 'stealth':
                 local_ip = abroad if direction == 'reverse' else iran
                 cfg['local_addr'] = '127.0.0.1' if ipaddress.ip_address(remote).is_loopback else local_ip
@@ -388,6 +632,114 @@ def make_config(d, role, directory):
             cfg.update(kcp_mtu=1200, kcp_interval=20, kcp_resend=2, kcp_nodelay=1, kcp_nocongestion=0,
                        kcp_sndwnd=2048, kcp_rcvwnd=2048, kcp_acknodelay=True, kcp_datashards=10, kcp_parityshards=3)
         return cfg
+    if p['engine'] == 'kariz':
+        transport = p['transport']
+        profile_mode = p.get('mode', 'ultraspeed')
+        is_entry = (role == 'client') if direction == 'direct' else (role == 'server')
+        kariz_role = 'entry' if is_entry else 'exit'
+        cfg = {
+            'role': kariz_role,
+            'mode': direction,
+            'profile': profile_mode,
+            'tunnel': {
+                'transport': transport,
+                'token': d['secret'],
+            },
+            'log': {'level': 'warn'}
+        }
+        if role == 'server':
+            cfg['tunnel']['listen'] = endpoint(listen, d['port'])
+        else:
+            cfg['tunnel']['remote'] = endpoint(remote, d['port'])
+        if is_entry:
+            cfg['forwards'] = [
+                {'listen': endpoint(d['entry_bind'], m['entry']), 'target': endpoint(d['target'], m['target']), 'protocol': 'tcp+udp' if m['network'] == 'both' else m['network']}
+                for m in d['maps']
+            ]
+        if transport == 'wss':
+            cfg['tunnel']['tls'] = ({'cert': cert, 'key': key} if role == 'server' else {'sni': d['server_name'], 'pin_sha256': cert_pin(cert)})
+        return cfg
+    if p['engine'] == 'backhaul':
+        transport = p['transport']
+        mappings = [f"{endpoint(d['entry_bind'], m['entry'])}={endpoint(d['target'], m['target'])}" for m in d['maps']]
+        if role == 'server':
+            return {
+                'server': {
+                    'bind_addr': endpoint(listen, d['port']),
+                    'transport': transport,
+                    'token': d['secret'],
+                    'channel_size': 2048,
+                    'keepalive': 60,
+                    'nodelay': True,
+                    'heartbeat': 20,
+                    'ports': mappings,
+                    **({'tls_cert': cert, 'tls_key': key} if transport in ('wss', 'wssmux') else {}),
+                }
+            }
+        else:
+            return {
+                'client': {
+                    'remote_addr': endpoint(remote, d['port']),
+                    'transport': transport,
+                    'token': d['secret'],
+                    'connection_pool': max(1, min(d['pool'], 48)),
+                    'nodelay': True,
+                    'keepalive': 60,
+                    'retry_interval': 1,
+                }
+            }
+    if p['engine'] == 'gost':
+        transport = p['transport'].split('+', 1)[1]
+        auth = dict(username='tunnel', password=d['secret'])
+        encrypted = transport in ('tls', 'wss', 'quic', 'grpc', 'h2', 'dtls')
+        if role == 'server':
+            listener = dict(type=transport)
+            if encrypted:
+                listener['tls'] = dict(certFile=cert, keyFile=key)
+            if transport == 'dtls':
+                listener['metadata'] = dict(mtu='1200', flightInterval='1000ms')  # gost dtls rejects zero defaults
+            return dict(log=dict(level='warn'), services=[dict(name='tunnel', addr=endpoint(listen, d['port']),
+                listener=listener, handler=dict(type='relay', auth=auth, metadata=dict(bind=direction == 'reverse')))])
+        node = dict(name='peer', addr=endpoint(remote, d['port']), connector=dict(type='relay', auth=auth), dialer=dict(type=transport))
+        if encrypted:
+            node['dialer']['tls'] = dict(caFile=cert, serverName=d['server_name'], secure=True)
+        if transport == 'dtls':
+            node['dialer']['metadata'] = dict(mtu='1200', flightInterval='1000ms')
+        if transport == 'grpc':
+            node['dialer']['metadata'] = dict(host=d['server_name'])  # gRPC authority must match cert name, not dial IP
+        services = []
+        for m in d['maps']:
+            for network in ('tcp', 'udp') if m['network'] == 'both' else (m['network'],):
+                kind = ('r' if direction == 'reverse' else '') + network
+                services.append(dict(name=f"entry-{m['entry']}-{network}", addr=endpoint(d['entry_bind'], m['entry']),
+                    listener=dict(type=kind, **(dict(chain='tunnel') if direction == 'reverse' else {})),
+                    handler=dict(type=kind, **(dict(chain='tunnel') if direction == 'direct' else {})),
+                    forwarder=dict(nodes=[dict(name='backend', addr=endpoint(d['target'], m['target']))])))
+        return dict(log=dict(level='warn'), services=services, chains=[dict(name='tunnel', hops=[dict(name='peer', nodes=[node])])])
+    if p['engine'] == 'rathole':
+        transport = dict(type=p['transport'])
+        if p['transport'] == 'noise':
+            transport['noise'] = dict(pattern='Noise_NN_25519_ChaChaPoly_BLAKE2s')
+        elif p['transport'] == 'tls':
+            if role == 'server':
+                identity = directory / 'identity.p12'
+                if not identity.exists():
+                    run(['openssl', 'pkcs12', '-export', '-inkey', key, '-in', cert, '-out', identity, '-passout', 'pass:'])
+                    identity.chmod(0o600)
+                transport['tls'] = dict(pkcs12=str(identity), pkcs12_password='')
+            else:
+                transport['tls'] = dict(trusted_root=cert, hostname=d['server_name'])
+        elif p['transport'] == 'websocket':
+            transport['websocket'] = dict(tls=False)
+        services = {}
+        for m in d['maps']:
+            for network in ('tcp', 'udp') if m['network'] == 'both' else (m['network'],):
+                services[f"entry_{m['entry']}_{network}"] = dict(type=network, **({'bind_addr': endpoint(d['entry_bind'], m['entry'])} if role == 'server' else {'local_addr': endpoint(d['target'], m['target'])}))
+        cfg = dict(default_token=d['secret'], transport=transport, services=services)
+        cfg['bind_addr' if role == 'server' else 'remote_addr'] = endpoint(listen if role == 'server' else remote, d['port'])
+        return {role: cfg}
+    if p['engine'] != 'dagger':
+        raise ValueError('No native configuration available for selected engine.')
     transport = p['transport']
     common = dict(mode=role, transport=transport, psk=d['secret'], log_level='info', profile_id=d['name'])
     if role == 'server':
@@ -405,12 +757,73 @@ def make_config(d, role, directory):
     return common
 
 
+def reliable_dtls_config(d, role, directory):
+    """Keep DTLS on wire; KCP retransmits/reorders the inner relay stream."""
+    cfg = make_config(d, role, directory)
+    forbidden = {d['port'], d['adapter_port']} | {m[k] for m in d['maps'] for k in ('entry', 'target')}
+    a = next_free_port(d['adapter_port'], forbidden)
+    b = next_free_port(a, forbidden | {a})
+    kcp = {'kcp.key': d['secret'], 'kcp.crypt': 'none', 'kcp.mtu': 1000,
+           'kcp.nocomp': True, 'kcp.mode': 'fast', 'kcp.sndwnd': 256, 'kcp.rcvwnd': 256}
+    if role == 'server':
+        outer = cfg['services'][0]
+        auth = outer['handler']['auth']
+        outer['handler'] = dict(type='udp', chain='local-datagrams')
+        cfg['chains'] = [dict(name='local-datagrams', hops=[dict(name='local', nodes=[
+            dict(name='reliable-peer', addr=endpoint('127.0.0.1', b),
+                 connector=dict(type='forward'), dialer=dict(type='udp'))])])]
+        outer['forwarder'] = dict(nodes=[dict(name='reliable-peer', addr=endpoint('127.0.0.1', b))])
+        cfg['services'].append(dict(name='reliable-relay', addr=endpoint('127.0.0.1', b),
+            listener=dict(type='kcp', metadata=kcp),
+            handler=dict(type='relay', auth=auth,
+                         metadata=dict(bind=d.get('direction') == 'reverse'))))
+    else:
+        dtls = cfg['chains'][0]
+        dtls['name'] = 'encrypted-datagrams'
+        auth = dtls['hops'][0]['nodes'][0]['connector']['auth']
+        dtls['hops'][0]['nodes'][0]['connector'] = dict(type='forward')
+        cfg['chains'] = [dict(name='tunnel', hops=[dict(name='reliable-peer', nodes=[
+            dict(name='peer', addr=endpoint('127.0.0.1', a),
+                 connector=dict(type='relay', auth=auth),
+                 dialer=dict(type='kcp', metadata=kcp))])]), dtls]
+        cfg['services'].append(dict(name='encrypted-datagrams', addr=endpoint('127.0.0.1', a),
+            listener=dict(type='udp', metadata=dict(keepalive=True, ttl='120s', readBufferSize=65535)),
+            handler=dict(type='udp', chain='encrypted-datagrams'),
+            forwarder=dict(nodes=[dict(name='reliable-peer', addr=endpoint('127.0.0.1', b))])))
+    return cfg
+
+
+def core_wrapped_bundle(d, role, directory):
+    """Direct for reverse-only engines: engine listens abroad, Iran dials out; tuntunnel-core reverse rides on it."""
+    iran, abroad = addresses(d)
+    ap = d['adapter_port']
+    forbidden = {d['port'], ap} | {m[k] for m in d['maps'] for k in ('entry', 'target')}
+    cp = next_free_port(ap, forbidden)
+    # engine in its native reverse orientation, endpoints swapped: listener on abroad, dialer on Iran
+    inner = dict(d, direction='reverse', carrier='none', iran_ip=abroad, abroad_ip=iran, target='127.0.0.1',
+                 entry_bind='127.0.0.1', maps=[dict(entry=ap, target=cp, network='tcp')])
+    suffix = 'toml' if PROFILES[d['profile']]['engine'] in ('backhaul', 'rathole') else 'json'
+    engine_item = dict(engine=PROFILES[d['profile']]['engine'], name=f'{role}.{suffix}', config=make_config(inner, role, directory))
+    token = base64.b64encode(hashlib.sha256(('tuntunnel-core:' + d['secret']).encode()).digest()).decode()
+    maps = [dict(entry=endpoint(d['entry_bind'], m['entry']), target=endpoint(d['target'], m['target'])) for m in d['maps']]
+    if role == 'client':  # Iran: entries + core listener reached only through the engine
+        core = dict(listen=endpoint('127.0.0.1', cp), connect=False, mode='reverse', token=token, maps=maps)
+    else:  # abroad: core dials the engine-exposed loopback port, serves targets
+        core = dict(peer=endpoint('127.0.0.1', ap), connect=True, mode='reverse', token=token, maps=maps)
+    return [engine_item, dict(engine='tuntunnel-core', name='core.json', config=core)]
+
+
 def config_bundle(d, role, directory):
     validate(d)
     p = PROFILES[d['profile']]
     engine = p['engine']
+    if engine in CORE_WRAPPED and direction_for(d) == 'direct':
+        return core_wrapped_bundle(d, role, directory)
     if not needs_adapter(d):
-        return [dict(engine=engine, name=f'{role}.json', config=make_config(d, role, directory))]
+        suffix = 'toml' if engine in ('kariz', 'backhaul', 'rathole') else 'json'
+        cfg = reliable_dtls_config(d, role, directory) if engine == 'gost' and p['transport'] == 'relay+dtls' else make_config(d, role, directory)
+        return [dict(engine=engine, name=f'{role}.{suffix}', config=cfg,
+                     **(dict(pin=GOST_DTLS_PIN) if engine == 'gost' and p['transport'].endswith('+dtls') else {}))]
     iran, abroad = addresses(d)
     ap = d.get('adapter_port', d['port'] + 1)
     if engine in ('sing-box', 'xray'):
@@ -489,22 +902,65 @@ def link_action(d, role, up=True):
             run(cmd)
 
 
-def download_engine(engine):
+def core_binary():
+    """tuntunnel-core: local build first, else the checksummed asset of this tuntunnel release."""
+    arch = {'x86_64': 'amd64', 'aarch64': 'arm64'}.get(platform.machine())
+    if not arch:
+        raise RuntimeError('Unsupported CPU architecture.')
+    target = BIN / f'tuntunnel-core-{VERSION}'
+    if target.is_file() and os.access(target, os.X_OK):
+        return target
+    for cand in (Path(__file__).resolve().parent / '.tools' / 'tuntunnel-core', Path('/usr/local/bin/tuntunnel-core')):
+        if cand.is_file() and os.access(cand, os.X_OK):
+            BIN.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(cand, target)
+            target.chmod(0o755)
+            return target
+    asset = f'tuntunnel-core-linux-{arch}'
+    base = f'https://github.com/mahdiweb3/tuntunnel/releases/download/v{VERSION}'
+    with urllib.request.urlopen(f'{base}/{asset}', timeout=120) as resp:
+        blob = resp.read()
+    with urllib.request.urlopen(f'{base}/SHA256SUMS', timeout=30) as resp:
+        sums = resp.read(1024 * 1024).decode(errors='ignore')
+    if not any(asset in line and hashlib.sha256(blob).hexdigest() in line.lower() for line in sums.splitlines()):
+        raise RuntimeError('tuntunnel-core SHA-256 checksum mismatch.')
+    BIN.mkdir(parents=True, exist_ok=True)
+    pending = target.with_suffix('.pending')
+    pending.write_bytes(blob)
+    pending.chmod(0o755)
+    os.replace(pending, target)
+    return target
+
+
+def download_engine(engine, pin=None):
+    if engine == 'tuntunnel-core':
+        return core_binary()
+    if engine not in RELEASES:
+        raise ValueError('Unknown engine.')
     if engine == 'backpack' and Path('/usr/local/bin/backpack').exists():
         return Path('/usr/local/bin/backpack')
+    if engine == 'kariz':
+        for cand in [Path('/usr/local/bin/kariz'), BIN / 'kariz']:
+            if cand.exists():
+                return cand
+    if engine == 'backhaul':
+        for cand in [Path('/usr/local/bin/backhaul'), BIN / 'backhaul']:
+            if cand.exists():
+                return cand
     arch = {'x86_64': 'amd64', 'aarch64': 'arm64'}.get(platform.machine())
     if not arch:
         raise RuntimeError('Unsupported CPU architecture.')
     repo, tag = RELEASES[engine]
+    tag = pin or tag
     target = BIN / f'{engine}-{tag}'
-    if target.exists():
+    if target.is_file() and os.access(target, os.X_OK):
         return target
     local_candidates = [
         Path(__file__).resolve().parent / '.tools' / ('DaggerLauncher' if engine == 'dagger' else engine),
         Path('/usr/local/bin') / ('DaggerConnect' if engine == 'dagger' else engine),
     ]
-    for cand in local_candidates:
-        if cand.exists():
+    for cand in ([] if pin else local_candidates):
+        if cand.is_file() and os.access(cand, os.X_OK):
             BIN.mkdir(parents=True, exist_ok=True)
             shutil.copy2(cand, target)
             target.chmod(0o755)
@@ -517,8 +973,20 @@ def download_engine(engine):
         asset, member = f'Xray-linux-{xarch}.zip', 'xray'
     elif engine == 'backpack':
         asset, member = f'backpack_linux_{arch}.tar.gz', 'backpack'
+    elif engine == 'kariz':
+        cpu = 'x86_64' if arch == 'amd64' else 'aarch64'
+        asset, member = f'kariz-{tag}-{cpu}-linux.tar.gz', 'kariz'
+    elif engine == 'backhaul':
+        asset, member = f'backhaul_linux_{arch}.tar.gz', 'backhaul'
+    elif engine == 'gost':
+        asset, member = f'gost_{version}_linux_{arch}.tar.gz', 'gost'
+    elif engine == 'rathole':
+        cpu = 'x86_64-unknown-linux-gnu' if arch == 'amd64' else 'aarch64-unknown-linux-musl'
+        asset, member = f'rathole-{cpu}.zip', 'rathole'
     else:
-        asset = member = f'DaggerConnect_linux_{arch}'
+        if arch != 'amd64':
+            raise RuntimeError('Dagger release supplies no verified ARM64 binary.')
+        asset = member = 'DaggerLauncher'
     base = f'https://github.com/{repo}/releases/download/{tag}'
     BIN.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='te-dl-') as temp:
@@ -526,30 +994,60 @@ def download_engine(engine):
         pkg = temp_dir / asset
         with urllib.request.urlopen(f'{base}/{asset}', timeout=120) as resp:
             pkg.write_bytes(resp.read())
-        for sums_name in ('checksums.txt', f'{asset}.dgst', 'SHA256SUMS'):
+        for sums_name in (f'{asset}.sha256', 'checksums.txt', f'{asset}.dgst', 'SHA256SUMS'):
             try:
                 with urllib.request.urlopen(f'{base}/{sums_name}', timeout=30) as resp:
                     text = resp.read().decode(errors='ignore')
                 digest = hashlib.sha256(pkg.read_bytes()).hexdigest().lower()
-                found = [m.group(0).lower() for m in re.finditer(r'\b[a-fA-F0-9]{64}\b', text)]
-                if found and digest not in found:
+                relevant = [line for line in text.splitlines() if asset in line] if sums_name in ('checksums.txt', 'SHA256SUMS') else text.splitlines()
+                found = [m.group(0).lower() for line in relevant for m in re.finditer(r'\b[a-fA-F0-9]{64}\b', line)]
+                if not found or digest not in found:
                     raise RuntimeError('Downloaded binary SHA-256 checksum mismatch.')
                 break
             except urllib.error.URLError:
                 continue
+        staged = temp_dir / 'engine'
         if asset.endswith('.tar.gz'):
             with tarfile.open(pkg, 'r:gz') as tar:
-                shutil.copyfileobj(tar.extractfile(member), open(target, 'wb'))
+                candidates = [m for m in tar.getmembers() if m.isfile() and (m.name == member or Path(m.name).name == Path(member).name)]
+                if len(candidates) != 1:
+                    raise RuntimeError('Release archive has no unique engine binary.')
+                with tar.extractfile(candidates[0]) as source, staged.open('wb') as dest:
+                    shutil.copyfileobj(source, dest)
         elif asset.endswith('.zip'):
             with zipfile.ZipFile(pkg) as zf:
-                shutil.copyfileobj(zf.open(member), open(target, 'wb'))
+                with zf.open(member) as source, staged.open('wb') as dest:
+                    shutil.copyfileobj(source, dest)
         else:
-            shutil.copy2(pkg, target)
-        target.chmod(0o755)
+            shutil.copy2(pkg, staged)
+        if not staged.stat().st_size:
+            raise RuntimeError('Release contains an empty engine binary.')
+        staged.chmod(0o755)
+        pending = target.with_suffix('.pending')
+        try:
+            shutil.copy2(staged, pending)
+            os.replace(pending, target)
+        finally:
+            pending.unlink(missing_ok=True)
     return target
 
 
+NATIVE_CHECK = ('sing-box', 'xray', 'kariz', 'tuntunnel-core')
+
+
+def check_config(engine, binary, config):
+    # ponytail: only sing-box/xray/kariz ship a config checker; the rest are proven by the startup/transfer tests
+    if engine in NATIVE_CHECK:
+        run(engine_argv(engine, binary, config, check=True))
+
+
 def engine_argv(engine, binary, config, check=False):
+    if engine == 'tuntunnel-core':
+        return [binary, '-check' if check else '-config', config]
+    if engine not in RELEASES:
+        raise ValueError('Unknown engine.')
+    if check and engine not in NATIVE_CHECK:
+        raise RuntimeError(f'{engine} has no native config-check command; use an isolated startup/transfer test.')
     if engine == 'sing-box':
         return [binary, 'check' if check else 'run', '-c', config]
     if engine == 'xray':
@@ -567,7 +1065,90 @@ def engine_argv(engine, binary, config, check=False):
                 os.chmod(toml_p, 0o600)
                 config = toml_p
         return [binary, '-v'] if check else [binary, '-c', config]
-    return [binary, '--help'] if check else [binary, '-c', config]
+    if engine == 'kariz':
+        cfg_p = Path(config)
+        if cfg_p.exists():
+            txt = cfg_p.read_text().lstrip()
+            if txt.startswith('{'):
+                c = json.loads(txt)
+                lines = [f'role = {json.dumps(c["role"])}', f'mode = {json.dumps(c["mode"])}', f'profile = {json.dumps(c["profile"])}', '']
+                lines.append('[tunnel]')
+                # TOML: scalars before sub-tables, else they land inside [tunnel.x]
+                items = sorted(c['tunnel'].items(), key=lambda kv: isinstance(kv[1], dict))
+                for k, v in items:
+                    if isinstance(v, dict):
+                        lines.append(f'[tunnel.{k}]')
+                        for k2, v2 in v.items():
+                            lines.append(f'{k2} = {json.dumps(v2)}')
+                    else:
+                        lines.append(f'{k} = {json.dumps(v)}')
+                if 'forwards' in c:
+                    for fwd in c['forwards']:
+                        lines.append('[[forward]]')
+                        for k, v in fwd.items():
+                            lines.append(f'{k} = {json.dumps(v)}')
+                lines.append('[log]')
+                lines.append(f'level = {json.dumps(c["log"]["level"])}')
+                toml_p = cfg_p.with_suffix('.toml')
+                toml_p.write_text('\n'.join(lines) + '\n')
+                os.chmod(toml_p, 0o600)
+                config = toml_p
+        return [binary, 'check', '-c', config] if check else [binary, 'run', '-c', config]
+    if engine == 'backhaul':
+        cfg_p = Path(config)
+        if cfg_p.exists():
+            txt = cfg_p.read_text().lstrip()
+            if txt.startswith('{'):
+                c = json.loads(txt)
+                sec = 'server' if 'server' in c else 'client'
+                data = c[sec]
+                lines = [f'[{sec}]']
+                for k, v in data.items():
+                    lines.append(f'{k} = {json.dumps(v)}')
+                toml_p = cfg_p.with_suffix('.toml')
+                toml_p.write_text('\n'.join(lines) + '\n')
+                os.chmod(toml_p, 0o600)
+                config = toml_p
+        return [binary, '-v'] if check else [binary, '-c', config]
+    if engine == 'rathole':
+        cfg_p = Path(config)
+        if cfg_p.read_text().lstrip().startswith('{'):
+            c = json.loads(cfg_p.read_text())
+            lines = []
+            def table(values, path):
+                lines.append('[' + '.'.join(path) + ']')
+                lines.extend(f'{k} = {json.dumps(v)}' for k, v in values.items() if not isinstance(v, dict))
+                for k, v in values.items():
+                    if isinstance(v, dict):
+                        table(v, path + [k])
+            for k, v in c.items():
+                table(v, [k])
+            cfg_p = cfg_p.with_suffix('.toml')
+            write(cfg_p, '\n'.join(lines) + '\n')
+            config = cfg_p
+        return [binary, config]
+    if engine == 'dagger':
+        return [binary, '-c', config]
+    return [binary, '-C', config]
+
+
+def stage_bundle(d, role, directory):
+    commands = []
+    primary = None
+    for item in config_bundle(d, role, directory):
+        binary = download_engine(item['engine'], pin=item.get('pin'))
+        primary = primary or binary
+        cfg = directory / item['name']
+        write(cfg, json.dumps(item['config'], indent=2) if isinstance(item['config'], dict) else item['config'])
+        argv = engine_argv(item['engine'], binary, cfg)
+        check_config(item['engine'], binary, Path(argv[-1]))
+        commands.append([str(x) for x in argv])
+    write(directory / 'bundle.json', json.dumps(commands))
+    runner = globals().get('BUNDLE_RUNNER_SOURCE')
+    if runner is None:
+        runner = Path(__file__).with_name('bundle_runner.py').read_text()
+    write(directory / 'bundle_runner.py', runner)
+    return primary
 
 
 def root_required():
@@ -579,12 +1160,15 @@ def prerequisites():
     missing = [tool for tool in ('ip', 'openssl', 'systemctl') if not shutil.which(tool)]
     if not missing:
         return
+    if 'systemctl' in missing:
+        raise RuntimeError('systemd is required for tunnel management.')
     root_required()
+    packages = [('iproute2' if tool == 'ip' else tool) for tool in missing]
     if shutil.which('apt-get'):
         run(['apt-get', 'update'], timeout=180)
-        run(['apt-get', 'install', '-y', 'iproute2', 'openssl', 'ca-certificates', 'systemd'], timeout=300)
+        run(['apt-get', 'install', '-y', *packages], timeout=300)
     elif shutil.which('dnf'):
-        run(['dnf', 'install', '-y', 'iproute', 'openssl', 'ca-certificates', 'systemd'], timeout=300)
+        run(['dnf', 'install', '-y', *['iproute' if p == 'iproute2' else p for p in packages]], timeout=300)
     else:
         raise RuntimeError('Missing required tools: ' + ', '.join(missing))
 
@@ -613,6 +1197,55 @@ def unit_name(name, link=False, adapter=False):
 def install(d, role, staged, binary):
     root_required()
     prerequisites()
+    folder = ROOT / 'tunnels' / d['name']
+    names = [unit_name(d['name'], adapter=True), unit_name(d['name']), unit_name(d['name'], link=True)]
+    previous_units = {name: (UNITS / name).read_bytes() if (UNITS / name).exists() else None for name in names}
+    active = {name: run(['systemctl', 'is-active', '--quiet', name], check=False).returncode == 0 for name in names}
+    enabled = {name: run(['systemctl', 'is-enabled', '--quiet', name], check=False).returncode == 0 for name in names}
+    with tempfile.TemporaryDirectory(prefix='te-rollback-') as tmp:
+        saved = Path(tmp) / 'tunnel'
+        if folder.exists():
+            shutil.copytree(folder, saved)
+        try:
+            for name in names:
+                if previous_units[name] is not None:
+                    run(['systemctl', 'stop', name], check=False)
+            _install(d, role, staged, binary)
+            for name in names:
+                if name not in {unit_name(d['name']),
+                                unit_name(d['name'], adapter=True) if (folder / 'adapter.json').exists() and not (folder / 'bundle.json').exists() else '',
+                                unit_name(d['name'], link=True) if d['carrier'] != 'none' else ''}:
+                    run(['systemctl', 'disable', name], check=False)
+                    (UNITS / name).unlink(missing_ok=True)
+            run(['systemctl', 'daemon-reload'])
+        except BaseException:
+            for name in names:
+                run(['systemctl', 'stop', name], check=False)
+                run(['systemctl', 'disable', name], check=False)
+            if d['carrier'] != 'none':
+                link_action(d, role, up=False)
+            if folder.exists():
+                shutil.rmtree(folder)
+            if saved.exists():
+                shutil.copytree(saved, folder)
+            for name, content in previous_units.items():
+                path = UNITS / name
+                if content is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    path.write_bytes(content)
+            run(['systemctl', 'daemon-reload'], check=False)
+            for name in names:
+                if enabled[name]:
+                    run(['systemctl', 'enable', name], check=False)
+            for name in reversed(names):
+                if active[name]:
+                    run(['systemctl', 'start', name], check=False)
+            raise
+
+
+def _install(d, role, staged, binary):
+    root_required()
     install_manager()
     folder = ROOT / 'tunnels' / d['name']
     if folder.exists():
@@ -650,7 +1283,12 @@ WantedBy=multi-user.target
         units.append(link_unit.name)
     after = 'network-online.target' + (f' {units[0]}' if units else '')
     requires = f'Requires={units[0]}\n' if units else ''
-    command = ' '.join(shlex.quote(str(x)) for x in engine_argv(engine, binary, folder / f'{role}.json'))
+    bundled = (folder / 'bundle.json').exists()
+    if bundled:
+        command = ' '.join(shlex.quote(str(x)) for x in
+                           (sys.executable, folder / 'bundle_runner.py', folder / 'bundle.json'))
+    else:
+        command = ' '.join(shlex.quote(str(x)) for x in engine_argv(engine, binary, folder / f'{role}.json'))
     service = UNITS / unit_name(d['name'])
     write(service, f'''[Unit]
 Description=Tunnel Extra {d['name']} ({d['profile']} {role})
@@ -671,7 +1309,7 @@ PrivateTmp=true
 WantedBy=multi-user.target
 ''', 0o644)
     units.append(service.name)
-    if (folder / 'adapter.json').exists():
+    if (folder / 'adapter.json').exists() and not bundled:
         abinary = download_engine('xray')
         acommand = ' '.join(shlex.quote(str(x)) for x in engine_argv('xray', abinary, folder / 'adapter.json'))
         aservice = UNITS / unit_name(d['name'], adapter=True)
@@ -722,12 +1360,10 @@ def show(d, role):
     for m in d['maps']:
         print(f"Forward: {d['entry_bind']}:{m['entry']} -> {d['target']}:{m['target']} ({m['network']})")
     print(f'Service: {unit_name(d["name"])} (active)')
-    print(f'\n=== Setup {peer_label} ===')
-    print(f'1) On the {peer_label}, as root (one-line apply):')
-    print(f"   sudo tuntunnel link apply '{link}'")
-    print(f'\n2) Or paste the Setup Link inside `sudo tuntunnel` -> Configure tunnel -> {peer_side.capitalize()}:')
-    print(f'   {link}')
-    print('\nLegacy TE1 code:\n' + encode_code(d))
+    if here_side == 'iran':
+        print('\nForeign setup link (contains credentials; share privately):\n' + link)
+    else:
+        print('\nForeign configuration ready. No setup link here; paste the Iran link on this server.')
 
 
 def confirm_install(yes):
@@ -739,14 +1375,25 @@ def confirm_install(yes):
 
 
 def create(args):
-    prerequisites()
     if args.iran_ip == args.abroad_ip and not ipaddress.ip_address(args.iran_ip).is_loopback:
         raise ValueError('Iran IP and Foreign IP must not be identical.')
     maps = parse_maps(args.maps, 'tcp' if PROFILES[args.profile]['engine'] == 'dagger' else args.network)
     direction = getattr(args, 'direction', None)
     data = new_pair(args.name, args.profile, args.iran_ip, args.abroad_ip, args.tunnel_port, maps,
                     carrier=args.carrier, subnet=args.subnet, direction=direction)
+    for field in ('entry_bind', 'target', 'server_name', 'camouflage', 'pool', 'mtu', 'link_id', 'vxlan_port',
+                  'adapter_port', 'iran_private', 'abroad_private'):
+        value = getattr(args, field, None)
+        if value is not None:
+            data[field] = value
+    validate(data)
+    if args.side != 'iran':
+        raise ValueError('Create runs on the Iran server only. On the Foreign server run: tuntunnel join --code <Iran link>')
     role = args.role if args.role != 'auto' else ('server' if side_for(data, 'server') == args.side else 'client')
+    if args.dry_run:
+        print(setup_link(data))
+        return
+    confirm_install(args.yes)
     with tempfile.TemporaryDirectory(prefix='te-stage-') as temp:
         staged = Path(temp) / data['name']
         staged.mkdir(mode=0o700)
@@ -754,29 +1401,19 @@ def create(args):
         data['certificate'] = (staged / 'cert.pem').read_text()
         data['key'] = (staged / 'key.pem').read_text()
         write(staged / 'pair.json', json.dumps(dict(data, role=role), indent=2))
-        bundle = config_bundle(data, role, staged)
-        binary = None
-        for item in bundle:
-            cfg_path = staged / item['name']
-            write(cfg_path, json.dumps(item['config'], indent=2))
-            eng_bin = download_engine(item['engine'])
-            if item['name'] == f'{role}.json':
-                binary = eng_bin
-            run(engine_argv(item['engine'], eng_bin, cfg_path, check=True))
-        if args.dry_run:
-            print(encode_code(data))
-            return
-        confirm_install(args.yes)
-        install(data, role, staged, binary)
+        install(data, role, staged, stage_bundle(data, role, staged))
     show(data, role)
 
 
 def join(args):
-    prerequisites()
     data = decode_code(args.code)
     if args.name:
         data['name'] = name_ok(args.name)
     role = args.role if args.role != 'auto' else ('server' if side_for(data, 'server') == args.side else 'client')
+    if args.dry_run:
+        print(json.dumps(dict(data, role=role), indent=2))
+        return
+    confirm_install(args.yes)
     with tempfile.TemporaryDirectory(prefix='te-stage-') as temp:
         staged = Path(temp) / data['name']
         staged.mkdir(mode=0o700)
@@ -793,20 +1430,7 @@ def join(args):
             if data.get('key'):
                 write(staged / 'key.pem', data['key'])
         write(staged / 'pair.json', json.dumps(dict(data, role=role), indent=2))
-        bundle = config_bundle(data, role, staged)
-        binary = None
-        for item in bundle:
-            cfg_path = staged / item['name']
-            write(cfg_path, json.dumps(item['config'], indent=2))
-            eng_bin = download_engine(item['engine'])
-            if item['name'] == f'{role}.json':
-                binary = eng_bin
-            run(engine_argv(item['engine'], eng_bin, cfg_path, check=True))
-        if args.dry_run:
-            print(json.dumps(bundle[0]['config'], indent=2))
-            return
-        confirm_install(args.yes)
-        install(data, role, staged, binary)
+        install(data, role, staged, stage_bundle(data, role, staged))
     show(data, role)
 
 
@@ -933,7 +1557,7 @@ def valid_link_id(val):
     return n
 
 
-BENCH_ZLIB_B64 = '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'
+BENCH_ZLIB_B64 = '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'
 
 
 def find_best_tunnel_wizard():
@@ -943,10 +1567,16 @@ def find_best_tunnel_wizard():
     src = bench_py.read_text() if bench_py else zlib.decompress(base64.b64decode(BENCH_ZLIB_B64)).decode()
     ns = {'__name__': '__bench__', '__file__': str(bench_py or SELF)}
     exec(compile(src, 'tunnel_bench.py', 'exec'), ns)
-    old_argv, os.environ['TE_SUBPROCESS'] = sys.argv[:], '1'
+    old_argv, old_subprocess = sys.argv[:], os.environ.get('TE_SUBPROCESS')
+    os.environ['TE_SUBPROCESS'] = '1'
     try: sys.argv = ['tunnel-bench']; ns['main']()
     except (SystemExit, KeyboardInterrupt): pass
-    finally: sys.argv = old_argv
+    finally:
+        sys.argv = old_argv
+        if old_subprocess is None:
+            os.environ.pop('TE_SUBPROCESS', None)
+        else:
+            os.environ['TE_SUBPROCESS'] = old_subprocess
 
 
 def configure_tunnel_wizard():
@@ -958,20 +1588,20 @@ def configure_tunnel_wizard():
                 res = choose('Server Location (Iran or Foreign — or paste tuntunnel:// setup link)', [
                     ('iran', 'Iran Server'),
                     ('abroad', 'Abroad / Foreign Server'),
-                ], default='1', allow_link=True)
+                ], default='2', allow_link=True)
                 if isinstance(res, tuple) and res[0] == '__link__':
                     join(argparse.Namespace(code=res[1], side='abroad', role='auto', name=None, dry_run=False, yes=False))
                     return
                 state['side'] = res
-                state['mode'] = 'create'
-                step = 1 if res == 'iran' else 3
+                state['mode'] = 'create' if res == 'iran' else 'join'
+                step = 1 if res == 'iran' else 4
             elif step == 1:
                 res = choose('Tunnel Direction (Reverse or Direct — or paste tuntunnel:// setup link)', [
                     ('reverse', 'Reverse Tunnel (Foreign dials Iran)'),
                     ('direct', 'Direct Tunnel (Iran dials Foreign)'),
                 ], default='1', allow_link=True)
                 if isinstance(res, tuple) and res[0] == '__link__':
-                    join(argparse.Namespace(code=res[1], side=state.get('side', 'abroad'), role='auto', name=None, dry_run=False, yes=False))
+                    join(argparse.Namespace(code=res[1], side='abroad', role='auto', name=None, dry_run=False, yes=False))
                     return
                 state['direction'] = res
                 step = 2
@@ -979,7 +1609,7 @@ def configure_tunnel_wizard():
                 opts = [(k, f"{k} ({v['engine']})") for k, v in PROFILES.items()]
                 res = choose('Select Transport Method (All Transports — or paste tuntunnel:// setup link)', opts, default='1', allow_link=True)
                 if isinstance(res, tuple) and res[0] == '__link__':
-                    join(argparse.Namespace(code=res[1], side=state.get('side', 'abroad'), role='auto', name=None, dry_run=False, yes=False))
+                    join(argparse.Namespace(code=res[1], side='abroad', role='auto', name=None, dry_run=False, yes=False))
                     return
                 state['profile'] = res
                 step = 4
@@ -989,7 +1619,7 @@ def configure_tunnel_wizard():
                     ('create', 'Manual configuration (Direction, transport, IPs, ports)'),
                 ], default='1', allow_link=True)
                 if isinstance(res, tuple) and res[0] == '__link__':
-                    join(argparse.Namespace(code=res[1], side=state.get('side', 'abroad'), role='auto', name=None, dry_run=False, yes=False))
+                    join(argparse.Namespace(code=res[1], side='abroad', role='auto', name=None, dry_run=False, yes=False))
                     return
                 state['mode'] = res
                 step = 4 if res == 'join' else 1
@@ -1050,7 +1680,7 @@ def configure_tunnel_wizard():
                 ))
                 return
         except Back:
-            step = {3: 0, 1: 3 if state.get('side') == 'abroad' else 0, 4: 3 if state.get('mode') == 'join' else 2}.get(step, step - 1)
+            step = {3: 0, 1: 0, 4: 0 if state.get('mode') == 'join' else 2}.get(step, step - 1)
 
 
 def saved_networks():
@@ -1214,8 +1844,12 @@ def status_table(name=None):
 
 
 def transport_protocol(d):
-    p = PROFILES[d['profile']]
-    return 'udp' if p.get('udp') or p.get('transport') in ('hysteria2', 'quic', 'kcp') else 'tcp'
+    p = PROFILES.get(d['profile'], {})
+    if p.get('raw'):
+        return 'raw'
+    if p.get('udp') or p.get('transport') in ('hysteria2', 'kcp', 'quic', 'paqet'):
+        return 'udp'
+    return 'tcp'
 
 
 def health_check(name=None, fix=False):
@@ -1236,8 +1870,10 @@ def health_check(name=None, fix=False):
             if fix and os.geteuid() == 0:
                 run(['systemctl', 'restart', unit], check=False)
                 fixes.append(f'restarted {unit}')
-        if needs_adapter(d) and (UNITS / unit_name(tname, adapter=True)).exists():
+        if needs_adapter(d):
             au = unit_name(tname, adapter=True)
+            if not (UNITS / au).exists():
+                issues.append(f'adapter unit {au} is missing; reapply tunnel configuration')
             astate = subprocess.run(['systemctl', 'is-active', au], capture_output=True, text=True, check=False).stdout.strip()
             if astate != 'active':
                 issues.append(f'adapter {au} is {astate or "inactive"}')
@@ -1252,16 +1888,19 @@ def health_check(name=None, fix=False):
                 if fix and os.geteuid() == 0:
                     link_action(d, role, up=True)
                     fixes.append(f'rebuilt carrier {dev}')
-        protocol = transport_protocol(d)
-        listeners = [ln.split() for ln in ss_out.splitlines()]
-        listening = any(len(cols) > 4 and cols[0] == protocol and cols[4].endswith(f":{d['port']}") for cols in listeners)
-        if role == 'server' and not listening:
-            issues.append(f"tunnel port {d['port']} not listening")
+        if role == 'server':
+            proto = transport_protocol(d)
+            if proto == 'tcp':
+                if not any(ln.startswith('tcp') and (f":{d['port']} " in ln or f":{d['port']}\n" in ln) for ln in ss_out.splitlines()):
+                    issues.append(f"tunnel port {d['port']} not listening")
+            elif proto == 'udp':
+                if not any(ln.startswith('udp') and (f":{d['port']} " in ln or f":{d['port']}\n" in ln) for ln in ss_out.splitlines()):
+                    issues.append(f"tunnel port {d['port']} UDP not listening")
         iran, abroad = addresses(d)
         peer = abroad if side_for(d, role) == 'iran' else iran
         direction = d.get('direction', 'direct')
         dials_peer = (role == 'client')
-        if dials_peer and protocol == 'tcp' and PROFILES[d['profile']]['engine'] != 'backpack':
+        if dials_peer and transport_protocol(d) == 'tcp':
             try:
                 with socket.create_connection((peer, d['port']), timeout=2.5):
                     pass
@@ -1277,12 +1916,13 @@ def health_check(name=None, fix=False):
         print(f"\n[{status_str}] Tunnel: {tname} ({d['profile']}, {direction}, {role})")
         if not issues:
             print(f"  - Service {unit}: active | Peer: {peer}:{d['port']}")
-        if protocol == 'udp':
-            print('  - UDP: TCP probe skipped; end-to-end delivery not verified by this check.')
         for iss in issues:
             print(f"  - Problem: {iss}")
         for fx in fixes:
             print(f"  - Fixed: {fx}")
+    if fix:
+        print('\nRechecking after repairs:')
+        return health_check(name, fix=False)
     return overall_ok
 
 def link_test(name):
@@ -1290,13 +1930,14 @@ def link_test(name):
     role = d.get('role', 'server')
     iran, abroad = addresses(d)
     peer = abroad if side_for(d, role) == 'iran' else iran
+    proto = transport_protocol(d)
     print(f"\n=== Link Test: {name} -> Peer {peer}:{d['port']} ===")
     p = subprocess.run(['ping', '-c', '4', '-W', '2', peer], capture_output=True, text=True, check=False)
     for ln in (p.stdout or p.stderr or '').splitlines():
         if any(k in ln for k in ('packets transmitted', 'rtt ', 'round-trip', '100% packet loss')):
             print('  ICMP:', ln.strip())
-    if transport_protocol(d) == 'udp':
-        print(f"  UDP Port {d['port']}: not verified (requires protocol handshake or end-to-end traffic); TCP probe skipped.")
+    if proto != 'tcp':
+        print(f"  Protocol {proto.upper()} ({d['profile']}) peer connection not verified via TCP handshake.")
         return
     t0 = time.monotonic()
     try:
@@ -1391,16 +2032,7 @@ def edit_tunnel(name, args=None):
             make_certificate(staged)
             d['certificate'] = (staged / 'cert.pem').read_text()
         write(staged / 'pair.json', json.dumps(dict(d, role=role), indent=2))
-        bundle = config_bundle(d, role, staged)
-        binary = None
-        for item in bundle:
-            cfg_path = staged / item['name']
-            write(cfg_path, json.dumps(item['config'], indent=2))
-            eng_bin = download_engine(item['engine'])
-            if item['name'] == f'{role}.json':
-                binary = eng_bin
-            run(engine_argv(item['engine'], eng_bin, cfg_path, check=True))
-        install(d, role, staged, binary)
+        install(d, role, staged, stage_bundle(d, role, staged))
         show(d, role)
 
 def restart_all():
@@ -1495,6 +2127,8 @@ def single_tunnel_menu(tname):
                 manage(act, tname)
             elif act == 'logs':
                 manage('logs', tname)
+            elif act == 'link' and side_for(d, d.get('role', 'server')) != 'iran':
+                print('\nSetup link is issued on the Iran server only.')
             elif act == 'link':
                 print(f"\nSetup Link:\n  {setup_link(d)}\n\nOne-line apply on peer server:\n  sudo tuntunnel link apply '{setup_link(d)}'\n\nLegacy TE1 code:\n  {encode_code(d)}")
             elif act == 'health':
@@ -1728,7 +2362,10 @@ def manage(action, name=None):
         return
     d = load(name)
     if action == 'code':
-        print(f"Setup Link:\n{setup_link(d)}\n\nLegacy TE1:\n{encode_code(d)}")
+        if side_for(d, d.get('role', 'server')) == 'iran':
+            print(setup_link(d))
+        else:
+            print('Setup link is issued on the Iran server only.')
     elif action == 'status':
         status_table(d['name'])
     elif action == 'test':
@@ -1746,14 +2383,19 @@ def manage(action, name=None):
         print(f"Tunnel {d['name']} {action.rstrip('e')}ed.")
     elif action == 'remove':
         root_required()
+        backup = ROOT / 'backups' / (d['name'] + '-' + datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f'))
+        backup.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(ROOT / 'tunnels' / d['name'], backup)
         for u in (unit_name(d['name'], adapter=True), unit_name(d['name']), unit_name(d['name'], link=True)):
+            if (UNITS / u).exists():
+                shutil.copy2(UNITS / u, backup / u)
             run(['systemctl', 'disable', '--now', u], check=False)
             (UNITS / u).unlink(missing_ok=True)
         if d['carrier'] != 'none':
             link_action(d, d.get('role', 'server'), up=False)
         shutil.rmtree(ROOT / 'tunnels' / d['name'], ignore_errors=True)
         run(['systemctl', 'daemon-reload'], check=False)
-        print(f"Tunnel {d['name']} removed.")
+        print(f"Tunnel {d['name']} removed. Backup retained: {backup}")
 
 
 def parser():
@@ -1773,6 +2415,7 @@ def parser():
     c.add_argument('--network', default='both', choices=['tcp', 'udp', 'both'])
     c.add_argument('--target', default='127.0.0.1')
     c.add_argument('--entry-bind', default='0.0.0.0')
+    c.add_argument('--camouflage', help='host:443 TLS1.3 site for ShadowTLS/REALITY handshake (default www.microsoft.com:443)')
     c.add_argument('--pool', type=int, default=48)
     c.add_argument('--carrier', default='none', choices=['none', 'gre', 'vxlan', 'ipip'])
     c.add_argument('--subnet', default='10.203.88.0/30')

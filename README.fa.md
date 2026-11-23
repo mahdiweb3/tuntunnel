@@ -41,14 +41,22 @@ TunTunnel تنظیمات اتصال و سرویس‌های موردنیاز را
 | `Update TunTunnel` | دریافت آخرین نسخه منتشرشده از گیت‌هاب، بررسی SHA256 و نصب با حفظ تنظیمات و تانل‌های فعال |
 | `Uninstall` | حذف محلی برنامه پس از تهیه و بررسی نسخه پشتیبان |
 
-پروفایل‌های موجود در کد پروژه شامل این خانواده‌ها هستند:
+پروفایل‌های موجود در نسخه ۲.۷ شامل این خانواده‌ها هستند:
 
-- **TCP و مالتی‌پلکس روی TLS:** `tcp-tls`، `smux-tls`، `yamux-tls` و `h2mux-tls`.
-- **انتقال‌های مبتنی بر وب:** `wss`، `wss-smux`، `grpc-tls`، `h2-tls`، `httpupgrade-tls`، `xhttp-tls`، `xray-wss` و `xray-grpc`.
-- **روش‌های مبتنی بر UDP:** `quic-tls`، `mkcp-chacha` و `mkcp-aes`.
-- **روش‌های دیگر:** `tcp-stealth`، `icmp-aes` و خانواده `dagger-*`.
+| موتور | ترانسپورت‌های پشتیبانی‌شده | جهت اتصال | توضیحات |
+| --- | --- | --- | --- |
+| **Kariz** | `paqet`، `tcp`، `ws`، `wss` | مستقیم و معکوس | ترانسپورت Paqet پکت‌های KCP را درون سگمنت‌های خام TCP (`IPPROTO_TCP`) با مهار خودکار ریست کرنل ارسال می‌کند؛ نیاز به IPv4 و دسترسی root/`CAP_NET_RAW`. |
+| **Backhaul** | `tcp`، `tcpmux`، `ws`، `wsmux`، `wssmux` | مستقیم و معکوس | مالتی‌پلکس سریع TCP/WebSocket. حالت مستقیم با هسته `tuntunnel-core` فعال است. |
+| **Rathole** | `tcp`، `noise`، `tls`، `ws` | مستقیم و معکوس | پروتکل Noise با حداقل مصرف حافظه. حالت مستقیم با `tuntunnel-core` فعال است. |
+| **BackPack** | `tcp`، `ws`، `tcpmux`، `wssmux`، `quic`، `faketcp`، `icmp` | مستقیم و معکوس | ترانسپورت‌های سوکت خام (FakeTCP و ICMP) نیاز به دسترسی root و اتصال مستقیم دارند. |
+| **sing-box** | `tcp-tls`، `smux-tls`، `yamux-tls`، `h2mux-tls`، `wss`، `grpc-tls`، `h2-tls`، `httpupgrade-tls`، `quic-tls`، `xhttp-tls`، `reality-grpc`، `reality-xhttp`، `shadowtls-v3`، `kcp-aes` | مستقیم و معکوس | مجموعه کامل ترانسپورت‌های مدرن. پروتکل REALITY نیاز به استتار TLS 1.3 و HTTP/2 دارد. |
+| **Xray** | `xray-wss`، `xray-grpc`، `mkcp-chacha`، `mkcp-aes` | مستقیم و معکوس | ترانسپورت‌های استاندارد mKCP و استریم‌های وب‌سوکت/gRPC. |
+| **GOST** | `gost-relay-tls`، `gost-relay-ws`، `gost-relay-wss`، `gost-reverse-tls`، `gost-reverse-ws`، `gost-reverse-wss`، `gost-reverse-grpc`، `gost-reverse-h2` | مستقیم و معکوس | رله و ریورس پروکسی GOST نسخه v3.2.6 برای پایداری کانکشن‌ها. |
 
-وجود یک پروفایل در منو به معنی کارکرد قطعی آن در همه دیتاسنترها نیست. برای نمونه، روش‌های خام به مجوز شبکه و پشتیبانی کرنل نیاز دارند؛ روش‌های UDP نیز روی مسیری که UDP را مسدود می‌کند قابل اتکا نیستند.
+> **نکات فنی ترانسپورت‌ها:**
+> - **حذف DTLS:** پروتکل DTLS در نسخه ۲.۷ به دلیل باگ‌های ریشه‌ای استک آپ‌استریم در مدیریت پکت حذف شده و با TLS/WSS/gRPC/QUIC جایگزین شده است.
+> - **وضعیت PangoTunnel:** فاقد سورس و باینری مستقل آپ‌استریم بوده و در این نسخه unsupported است.
+> - **قاعده تولید لینک:** فقط سرور ایران لینک اتصال `tuntunnel://` تولید می‌کند؛ سرور خارج صرفاً لینک را دریافت و اعمال می‌کند.
 
 <a id="requirements"></a>
 ## پیش‌نیازها

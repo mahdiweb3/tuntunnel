@@ -13,6 +13,7 @@ A Linux terminal tool for configuring tunnels, private network carriers, and com
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Create a tunnel](#create-a-tunnel)
+- [Supported Transports & Engines](#supported-transports--engines-v27)
 - [Benchmark](#benchmark)
 - [Management](#management)
 - [Command-line reference](#command-line-reference)
@@ -124,6 +125,25 @@ Review downloaded scripts before running them as root. Only use a repository and
 8. Open **Tunnel Management** on each server and check status and health. Test the mapped service end to end.
 
 A setup link can contain sensitive connection material. Never publish it or share it in a public issue.
+
+## Supported Transports & Engines (v2.7)
+
+TunTunnel supports **Direct** (Iran → Abroad) and **Reverse** (Abroad → Iran) setups across all stable engines. Reverse-only engines (Backhaul, Rathole, BackPack) seamlessly run in Direct mode via the supervised `tuntunnel-core` stream bridge.
+
+| Engine | Supported Transports | Direction | Notes |
+| --- | --- | --- | --- |
+| **Kariz** | `paqet`, `tcp`, `ws`, `wss` | Direct & Reverse | Native Paqet runs KCP over raw synthetic TCP (`IPPROTO_TCP`) with kernel RST suppression; requires IPv4 & root/`CAP_NET_RAW`. |
+| **Backhaul** | `tcp`, `tcpmux`, `ws`, `wsmux`, `wssmux` | Direct & Reverse | High performance TCP/WebSocket multiplexing. Direct mode powered by `tuntunnel-core`. |
+| **Rathole** | `tcp`, `noise`, `tls`, `ws` | Direct & Reverse | Noise protocol encryption and low overhead. Direct mode powered by `tuntunnel-core`. |
+| **BackPack** | `tcp`, `ws`, `tcpmux`, `wssmux`, `quic`, `faketcp`, `icmp` | Direct & Reverse | Multi-protocol tunnel. Raw transports (FakeTCP/ICMP) require root and direct interfaces. |
+| **sing-box** | `tcp-tls`, `smux-tls`, `yamux-tls`, `h2mux-tls`, `wss`, `grpc-tls`, `h2-tls`, `httpupgrade-tls`, `quic-tls`, `xhttp-tls`, `reality-grpc`, `reality-xhttp`, `shadowtls-v3`, `kcp-aes` | Direct & Reverse | Full modern transport matrix. REALITY requires TLS 1.3 + HTTP/2 camouflage. |
+| **Xray** | `xray-wss`, `xray-grpc`, `mkcp-chacha`, `mkcp-aes` | Direct & Reverse | Standard Xray mKCP and WebSocket/gRPC streams. |
+| **GOST** | `gost-relay-tls`, `gost-relay-ws`, `gost-relay-wss`, `gost-reverse-tls`, `gost-reverse-ws`, `gost-reverse-wss`, `gost-reverse-grpc`, `gost-reverse-h2` | Direct & Reverse | Multi-hop proxy relay and reverse tunnels. Pinned to GOST v3.2.6 for dialer stability. |
+
+> **Notes on Transports:**
+> - **DTLS:** Permanently removed in v2.7 due to persistent upstream packet-handling instabilities.
+> - **PangoTunnel:** Unverified upstream source; reported as unsupported.
+> - **Setup Link Rule:** Only the Iran server generates a `tuntunnel://` setup link. The foreign server applies it.
 
 ## Benchmark
 
