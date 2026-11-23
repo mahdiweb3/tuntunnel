@@ -52,10 +52,10 @@ TunTunnel تنظیمات اتصال و سرویس‌های موردنیاز را
 | **sing-box** | `tcp-tls`، `smux-tls`، `yamux-tls`، `h2mux-tls`، `wss`، `grpc-tls`، `h2-tls`، `httpupgrade-tls`، `quic-tls`، `xhttp-tls`، `reality-grpc`، `reality-xhttp`، `shadowtls-v3`، `kcp-aes` | مستقیم و معکوس | مجموعه کامل ترانسپورت‌های مدرن. پروتکل REALITY نیاز به استتار TLS 1.3 و HTTP/2 دارد. |
 | **Xray** | `xray-wss`، `xray-grpc`، `mkcp-chacha`، `mkcp-aes` | مستقیم و معکوس | ترانسپورت‌های استاندارد mKCP و استریم‌های وب‌سوکت/gRPC. |
 | **GOST** | `gost-relay-tls`، `gost-relay-ws`، `gost-relay-wss`، `gost-reverse-tls`، `gost-reverse-ws`، `gost-reverse-wss`، `gost-reverse-grpc`، `gost-reverse-h2` | مستقیم و معکوس | رله و ریورس پروکسی GOST نسخه v3.2.6 برای پایداری کانکشن‌ها. |
+| **Pango** | `pango-tcp`، `pango-ws`، `pango-tls`، `pango-grpc` | مستقیم و معکوس | ترانسپورت‌های سازگار با Pangolin روی بسترهای TLS 1.3، وب‌سوکت با smux و HTTPUpgrade. |
 
 > **نکات فنی ترانسپورت‌ها:**
 > - **حذف DTLS:** پروتکل DTLS در نسخه ۲.۷ به دلیل باگ‌های ریشه‌ای استک آپ‌استریم در مدیریت پکت حذف شده و با TLS/WSS/gRPC/QUIC جایگزین شده است.
-> - **وضعیت PangoTunnel:** فاقد سورس و باینری مستقل آپ‌استریم بوده و در این نسخه unsupported است.
 > - **قاعده تولید لینک:** فقط سرور ایران لینک اتصال `tuntunnel://` تولید می‌کند؛ سرور خارج صرفاً لینک را دریافت و اعمال می‌کند.
 
 <a id="requirements"></a>

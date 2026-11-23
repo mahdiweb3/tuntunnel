@@ -139,10 +139,10 @@ TunTunnel supports **Direct** (Iran → Abroad) and **Reverse** (Abroad → Iran
 | **sing-box** | `tcp-tls`, `smux-tls`, `yamux-tls`, `h2mux-tls`, `wss`, `grpc-tls`, `h2-tls`, `httpupgrade-tls`, `quic-tls`, `xhttp-tls`, `reality-grpc`, `reality-xhttp`, `shadowtls-v3`, `kcp-aes` | Direct & Reverse | Full modern transport matrix. REALITY requires TLS 1.3 + HTTP/2 camouflage. |
 | **Xray** | `xray-wss`, `xray-grpc`, `mkcp-chacha`, `mkcp-aes` | Direct & Reverse | Standard Xray mKCP and WebSocket/gRPC streams. |
 | **GOST** | `gost-relay-tls`, `gost-relay-ws`, `gost-relay-wss`, `gost-reverse-tls`, `gost-reverse-ws`, `gost-reverse-wss`, `gost-reverse-grpc`, `gost-reverse-h2` | Direct & Reverse | Multi-hop proxy relay and reverse tunnels. Pinned to GOST v3.2.6 for dialer stability. |
+| **Pango** | `pango-tcp`, `pango-ws`, `pango-tls`, `pango-grpc` | Direct & Reverse | Pangolin-compatible stream tunnels over TLS 1.3, smux, and HTTPUpgrade. |
 
 > **Notes on Transports:**
 > - **DTLS:** Permanently removed in v2.7 due to persistent upstream packet-handling instabilities.
-> - **PangoTunnel:** Unverified upstream source; reported as unsupported.
 > - **Setup Link Rule:** Only the Iran server generates a `tuntunnel://` setup link. The foreign server applies it.
 
 ## Benchmark
