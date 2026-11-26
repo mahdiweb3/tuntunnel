@@ -54,9 +54,10 @@ TunTunnel تنظیمات اتصال و سرویس‌های موردنیاز را
 | **GOST** | `gost-relay-tls`، `gost-relay-ws`، `gost-relay-wss`، `gost-reverse-tls`، `gost-reverse-ws`، `gost-reverse-wss`، `gost-reverse-grpc`، `gost-reverse-h2` | مستقیم و معکوس | رله و ریورس پروکسی GOST نسخه v3.2.6 برای پایداری کانکشن‌ها. |
 | **Pango** | `pango-tcp`، `pango-ws`، `pango-tls`، `pango-grpc` | مستقیم و معکوس | ترانسپورت‌های سازگار با Pangolin روی بسترهای TLS 1.3، وب‌سوکت با smux و HTTPUpgrade. |
 
-> **نکات فنی ترانسپورت‌ها:**
+> **نکات فنی ترانسپورت‌ها و اصلاحات نسخه ۲.۷.۱:**
 > - **حذف DTLS:** پروتکل DTLS در نسخه ۲.۷ به دلیل باگ‌های ریشه‌ای استک آپ‌استریم در مدیریت پکت حذف شده و با TLS/WSS/gRPC/QUIC جایگزین شده است.
 > - **قاعده تولید لینک:** فقط سرور ایران لینک اتصال `tuntunnel://` تولید می‌کند؛ سرور خارج صرفاً لینک را دریافت و اعمال می‌کند.
+> - **اصلاحات نسخه ۲.۷.۱:** تعبیه مستقیم `bundle_runner.py` درون اسکریپت و رفع کرش مسیر هنگام اجرای `create`/`join`/`link apply`/`edit`؛ فعال‌سازی مالتی‌پلکس `smux` و استفاده واقعی از `pool` در `httpupgrade-tls` و `pango-tls`؛ بایند مستقیم IP خصوصی/GRE به‌جای `0.0.0.0`؛ اصلاح انتخاب آدرس در `link_commands` روی سرورهای چند-IP و افزودن کلَمپ `TCPMSS` روی کریرهای GRE/IPIP/VXLAN؛ اصلاح `pango-tcp` در بنچمارک و ثبت `python3` سیستمی در سرویس systemd.
 
 <a id="requirements"></a>
 ## پیش‌نیازها

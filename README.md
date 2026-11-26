@@ -141,9 +141,10 @@ TunTunnel supports **Direct** (Iran → Abroad) and **Reverse** (Abroad → Iran
 | **GOST** | `gost-relay-tls`, `gost-relay-ws`, `gost-relay-wss`, `gost-reverse-tls`, `gost-reverse-ws`, `gost-reverse-wss`, `gost-reverse-grpc`, `gost-reverse-h2` | Direct & Reverse | Multi-hop proxy relay and reverse tunnels. Pinned to GOST v3.2.6 for dialer stability. |
 | **Pango** | `pango-tcp`, `pango-ws`, `pango-tls`, `pango-grpc` | Direct & Reverse | Pangolin-compatible stream tunnels over TLS 1.3, smux, and HTTPUpgrade. |
 
-> **Notes on Transports:**
+> **Notes on Transports & v2.7.1 Fixes:**
 > - **DTLS:** Permanently removed in v2.7 due to persistent upstream packet-handling instabilities.
 > - **Setup Link Rule:** Only the Iran server generates a `tuntunnel://` setup link. The foreign server applies it.
+> - **v2.7.1 Fixes:** Embedded `bundle_runner.py` and fixed `TE_SOURCE` / `<stdin>` path resolution across `create`, `join`, `link apply`, and `edit`; enabled `smux` multiplexing (`pool`) on `httpupgrade-tls` and `pango-tls`; bound GRE/private endpoints directly instead of `0.0.0.0`; fixed multi-IP `link_commands` endpoint selection and added `TCPMSS` clamping for GRE/IPIP/VXLAN carriers; fixed `pango-tcp` benchmark transport parity; ensured systemd units pick system `python3`.
 
 ## Benchmark
 
